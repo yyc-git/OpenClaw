@@ -17,8 +17,8 @@
 
 ## 已接入的数据源
 - **DeepSeek 网页版** — 已登录，可查历史对话
-- **博客园** — 可读博客（chaogex.cnblogs.com）
-- **知乎** — 手动登录后可读
+- **博客园** — https://www.cnblogs.com/chaogex
+- **知乎** — https://www.zhihu.com/people/chaogex
 - **GTS-Play 项目** — 本地代码
 
 ## 项目
