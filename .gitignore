@@ -1,0 +1,10 @@
+# 敏感数据
+credentials/
+tmp_*.json
+
+# 运行时
+.openclaw/
+
+# 系统
+.DS_Store
+Thumbs.db
