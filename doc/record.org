@@ -1,0 +1,11 @@
+* TODO use OpenClaw
+
+build repo for open claw
+
+本地部署
+
+运行第一个任务
+
+接通微信/qq
+
+接通discord

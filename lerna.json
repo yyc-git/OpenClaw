@@ -1,0 +1,18 @@
+{
+	"packages": [
+	],
+	"npmClient": "yarn",
+	"command": {
+		"bootstrap": {
+			"registry": "https://registry.npmmirror.com"
+		},
+		"publish": {
+			"registry": "https://registry.npmjs.org/"
+		}
+	},
+	"useWorkspaces": true,
+	"ignoreChanges": [
+		"**/*.md"
+	],
+	"version": "0.0.1"
+}
