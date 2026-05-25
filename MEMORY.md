@@ -50,4 +50,12 @@
 
 ---
 
+## GitHub 自动同步
+- 远程仓库：https://github.com/yyc-git/OpenClaw.git（master 分支）
+- 每整点自动同步（cron: 0 * * * *，Asia/Shanghai）
+- 同步脚本：`skills/openclaw-backup-sync/scripts/auto-sync.ps1`
+- 排除：credentials/、tmp_*.json、*.log、node_modules/
+
+---
+
 *记忆持续更新中*
