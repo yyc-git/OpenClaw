@@ -47,14 +47,20 @@
 - 使用 hf-mirror.com 下载 GGUF 模型
 - SQLite at C:\sqlite，bun at ~\.bun\bin
 - GPU 加速：RTX 2060 SUPER（Vulkan）
+- 已启用会话索引（sessions.enabled = true）
 
 ---
 
 ## GitHub 自动同步
 - 远程仓库：https://github.com/yyc-git/OpenClaw.git（master 分支）
-- 每整点自动同步（cron: 0 * * * *，Asia/Shanghai）
+- ~~每整点自动同步（已取消）~~
 - 同步脚本：`skills/openclaw-backup-sync/scripts/auto-sync.ps1`
 - 排除：credentials/、tmp_*.json、*.log、node_modules/
+
+## Token 节省优化
+- AGENTS.md 精简：2042→1004 tok（砍半）
+- context pruning 已启用（cache-ttl, 5min）
+- 后台 cron 用 DeepSeek Chat 轻模型 + light-context
 
 ---
 

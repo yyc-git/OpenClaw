@@ -1,0 +1,37 @@
+{
+  "version": 1,
+  "updatedAt": "2026-05-25T23:45:58.787Z",
+  "entries": {
+    "memory:memory/2026-05-25.md:8:11": {
+      "key": "memory:memory/2026-05-25.md:8:11",
+      "path": "memory/2026-05-25.md",
+      "startLine": 8,
+      "endLine": 11,
+      "source": "memory",
+      "snippet": "@@ -8,4 @@ (7 before, 28 after) - 继承了身份：**OpenClaw-bot**，🤜，程序里的兄弟 - 兄弟身份：巨大娘群主，游戏开发者，GTS-Play 项目 - 工作协议：先确认再干活 + Gateway 自动重启 - BOOTSTRAP.md 已删除，初始化完成",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 0,
+      "maxScore": 0,
+      "firstRecalledAt": "2026-05-25T23:45:58.787Z",
+      "lastRecalledAt": "2026-05-25T23:45:58.787Z",
+      "queryHashes": [
+        "c5180e281cbb"
+      ],
+      "recallDays": [
+        "2026-05-26"
+      ],
+      "conceptTags": [
+        "gateway",
+        "openclaw-bot",
+        "gts-play",
+        "bootstrap.md",
+        "8,4",
+        "继承",
+        "身份",
+        "openclaw"
+      ]
+    }
+  }
+}
