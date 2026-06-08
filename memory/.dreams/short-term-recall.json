@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-05-25T23:45:58.787Z",
+  "updatedAt": "2026-06-08T07:10:21.425Z",
   "entries": {
     "memory:memory/2026-05-25.md:8:11": {
       "key": "memory:memory/2026-05-25.md:8:11",
@@ -31,6 +31,68 @@
         "继承",
         "身份",
         "openclaw"
+      ]
+    },
+    "memory:memory/2026-05-25.md:1:33": {
+      "key": "memory:memory/2026-05-25.md:1:33",
+      "path": "memory/2026-05-25.md",
+      "startLine": 1,
+      "endLine": 33,
+      "source": "memory",
+      "snippet": "# 2026-05-25 对话记录 ## 会话重启 & 继承配置 - **兄弟（兄弟）** 让我同步 `yyc-git/OpenClaw` 仓库 master 分支到本地 - 首次误用了 main 分支（OpenClaw 源码 lerna 项目），后更正为 master - master 分支是他的 workspace 镜像：SOUL.md、AGENTS.md、IDENTITY.md、USER.md、MEMORY.md、TOOLS.md、HEARTBEAT.md、memory/日记、skills/ - 兄弟让用仓库里的文件更新我的本地 workspace 文件（SOUL.md 等） - 继承了身份：**OpenClaw-bot**，🤜，程序里的兄弟 - 兄弟身份：巨大娘群主，游戏开发者，GTS-Play 项目 - 工作协议：先确认再干活 + Gateway 自动重启 - BOOTSTRAP.md 已删除，初始化完成 ## 渠道恢复（进行中） ### QQ Bot ✅ - 已安装 `@openclaw/qqbot` 插件 - AppID: 1904014751 - 需要 clientSecret（在 QQ 开放平台后台）才能完成配置 ### 个人微信 ✅ - 已安装 `@canghe/openclaw-wechat`（个人微信插件） - 已安装 `@openclaw-china/wechat-mp`（备用） - 需要通过 OpenClaw 注册渠道 ### 已接入的数据源（继承） - DeepSeek 网页版 —",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-08T07:10:21.425Z",
+      "lastRecalledAt": "2026-06-08T07:10:21.425Z",
+      "queryHashes": [
+        "ea8ea0097248"
+      ],
+      "recallDays": [
+        "2026-06-08"
+      ],
+      "conceptTags": [
+        "gateway",
+        "yyc-git/openclaw",
+        "soul.md",
+        "agents.md",
+        "identity.md",
+        "user.md",
+        "memory.md",
+        "tools.md"
+      ]
+    },
+    "memory:memory/2026-05-25.md:24:39": {
+      "key": "memory:memory/2026-05-25.md:24:39",
+      "path": "memory/2026-05-25.md",
+      "startLine": 24,
+      "endLine": 39,
+      "source": "memory",
+      "snippet": "### 已接入的数据源（继承） - DeepSeek 网页版 — 已登录 - 博客园 — https://www.cnblogs.com/chaogex - 知乎 — https://www.zhihu.com/people/chaogex - GTS-Play 项目 — 本地代码 ## 项目状态 - GTS-Play: D:/Github/GTS-Play/, Lerna monorepo, Three.js + React ## YouTube 下载 & 视频拆分 - 下载工具：yt-dlp v2026.03.17（`$env:TEMP\\yt-dlp.exe`） - ffmpeg 已安装（`$env:TEMP\\ffmpeg\\`） - 下载视频：一生難得的朝聖之旅｜2025 與薩古魯同行的岡仁波齊之旅（236MB, 01:00:04） - 用 ffmpeg segment 切成2段，每段~30分钟 - 默认下载目录：`D:\\Downloads\\`",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-08T07:10:21.425Z",
+      "lastRecalledAt": "2026-06-08T07:10:21.425Z",
+      "queryHashes": [
+        "ea8ea0097248"
+      ],
+      "recallDays": [
+        "2026-06-08"
+      ],
+      "conceptTags": [
+        "www.cnblogs.com/chaogex",
+        "www.zhihu.com/people/chaogex",
+        "gts-play",
+        "github/gts-play",
+        "three.js",
+        "yt-dlp",
+        "v2026.03.17",
+        "yt-dlp.exe"
       ]
     }
   }

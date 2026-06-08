@@ -1,1 +1,2 @@
 {"type":"memory.recall.recorded","timestamp":"2026-05-25T23:45:58.787Z","query":"GTS-Play 项目","resultCount":1,"results":[{"path":"memory/2026-05-25.md","startLine":8,"endLine":11,"score":0}]}
+{"type":"memory.recall.recorded","timestamp":"2026-06-08T07:10:21.425Z","query":"最近的会话 项目进展 2026年6月","resultCount":2,"results":[{"path":"memory/2026-05-25.md","startLine":1,"endLine":33,"score":1},{"path":"memory/2026-05-25.md","startLine":24,"endLine":39,"score":1}]}

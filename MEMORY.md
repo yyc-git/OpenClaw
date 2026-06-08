@@ -15,6 +15,19 @@
 - **QQ Bot** — 已接入（AppID: 1904014751）
 - **Discord** — 已配但被GFW墙了，目前禁用
 
+## 多人联机改造（状态同步 MVP）
+- 2026-06-08：基于已有帧同步 demo（basic1）创建了状态同步 MVP（new_basic2）
+- 做了完整的状态同步改造：服务端 authoritative tick 循环 + 状态插值渲染
+- 目录：`demos/new_basic2/`（客户端），`demos/room-service/`（服务端，Game.ts 重写）
+- 服务端端口 4003，客户端 dev server 端口 8094
+- 技术栈：TSRPC WebSocket + 自定义 meta3d 引擎
+- 2026-06-08 13:04：跑通！两个玩家联机成功，方块移动+碰撞检测正常
+- 关键决策：去掉 meta3d 引擎（setLocalPosition 运行时不生效），改用纯 Three.js 渲染
+- 包大小：20.6MB → 7.95MB
+
+## 优化
+- thinking 级别改为 low（日常），高复杂度任务用子会话跑 high
+
 ## 已接入的数据源
 - **DeepSeek 网页版** — 已登录，可查历史对话
 - **博客园** — https://www.cnblogs.com/chaogex
