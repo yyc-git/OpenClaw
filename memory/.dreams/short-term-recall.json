@@ -1,6 +1,6 @@
 {
   "version": 1,
-  "updatedAt": "2026-06-08T07:10:21.425Z",
+  "updatedAt": "2026-06-09T07:22:12.532Z",
   "entries": {
     "memory:memory/2026-05-25.md:8:11": {
       "key": "memory:memory/2026-05-25.md:8:11",
@@ -40,18 +40,20 @@
       "endLine": 33,
       "source": "memory",
       "snippet": "# 2026-05-25 对话记录 ## 会话重启 & 继承配置 - **兄弟（兄弟）** 让我同步 `yyc-git/OpenClaw` 仓库 master 分支到本地 - 首次误用了 main 分支（OpenClaw 源码 lerna 项目），后更正为 master - master 分支是他的 workspace 镜像：SOUL.md、AGENTS.md、IDENTITY.md、USER.md、MEMORY.md、TOOLS.md、HEARTBEAT.md、memory/日记、skills/ - 兄弟让用仓库里的文件更新我的本地 workspace 文件（SOUL.md 等） - 继承了身份：**OpenClaw-bot**，🤜，程序里的兄弟 - 兄弟身份：巨大娘群主，游戏开发者，GTS-Play 项目 - 工作协议：先确认再干活 + Gateway 自动重启 - BOOTSTRAP.md 已删除，初始化完成 ## 渠道恢复（进行中） ### QQ Bot ✅ - 已安装 `@openclaw/qqbot` 插件 - AppID: 1904014751 - 需要 clientSecret（在 QQ 开放平台后台）才能完成配置 ### 个人微信 ✅ - 已安装 `@canghe/openclaw-wechat`（个人微信插件） - 已安装 `@openclaw-china/wechat-mp`（备用） - 需要通过 OpenClaw 注册渠道 ### 已接入的数据源（继承） - DeepSeek 网页版 —",
-      "recallCount": 1,
+      "recallCount": 2,
       "dailyCount": 0,
       "groundedCount": 0,
-      "totalScore": 1,
+      "totalScore": 2,
       "maxScore": 1,
       "firstRecalledAt": "2026-06-08T07:10:21.425Z",
-      "lastRecalledAt": "2026-06-08T07:10:21.425Z",
+      "lastRecalledAt": "2026-06-09T06:13:17.458Z",
       "queryHashes": [
-        "ea8ea0097248"
+        "ea8ea0097248",
+        "1fc1374ed8c5"
       ],
       "recallDays": [
-        "2026-06-08"
+        "2026-06-08",
+        "2026-06-09"
       ],
       "conceptTags": [
         "gateway",
@@ -93,6 +95,131 @@
         "yt-dlp",
         "v2026.03.17",
         "yt-dlp.exe"
+      ]
+    },
+    "memory:memory/2026-06-09.md:153:177": {
+      "key": "memory:memory/2026-06-09.md:153:177",
+      "path": "memory/2026-06-09.md",
+      "startLine": 153,
+      "endLine": 177,
+      "source": "memory",
+      "snippet": "- `render_layer/MultiplayerRender.ts` — 渲染逻辑 - `logic_layer/MultiplayerManager.ts` — 网络+状态管理 - `logic_layer/GameStateInterpolator.ts` — 插值（当前精简，保留入口） - `logic_layer/InputManager.ts` — WASD 输入 - `scene3d_layer/type/MultiplayerType.ts` — 多人状态类型 - `multiplayer/state/MultiplayerState.ts` → 搬到 `ui_layer/index/multiplayer/state/MultiplayerState.ts` - `multiplayer/components/MultiplayerHall.tsx` → 搬到 `ui_layer/index/multiplayer/components/MultiplayerHall.tsx` ## 状态 - 编译零错误 - 服务端 room-service 包已迁到 packages/ 下（从 demos/ 复制） - 房间初始位置：startX=-10, step=20 - 相机位置：[0, 20, 25] - 端口：服务端 4003，前端 8093 - **自动化测试已通过** ✅ - Playwright 已全局安装，Chromium 已下载 ## 自动化测试 - 脚本：`packages/frontend/test/multiplayer/auto-test",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-09T04:05:08.109Z",
+      "lastRecalledAt": "2026-06-09T04:05:08.109Z",
+      "queryHashes": [
+        "6d13958bfc0a"
+      ],
+      "recallDays": [
+        "2026-06-09"
+      ],
+      "conceptTags": [
+        "网络",
+        "logic-layer/inputmanager.ts",
+        "room-service",
+        "render-layer",
+        "multiplayerrender.ts",
+        "渲染",
+        "逻辑",
+        "logic-layer"
+      ]
+    },
+    "memory:memory/2026-06-09.md:153:181": {
+      "key": "memory:memory/2026-06-09.md:153:181",
+      "path": "memory/2026-06-09.md",
+      "startLine": 153,
+      "endLine": 181,
+      "source": "memory",
+      "snippet": "- `render_layer/MultiplayerRender.ts` — 渲染逻辑 - `logic_layer/MultiplayerManager.ts` — 网络+状态管理 - `logic_layer/GameStateInterpolator.ts` — 插值（当前精简，保留入口） - `logic_layer/InputManager.ts` — WASD 输入 - `scene3d_layer/type/MultiplayerType.ts` — 多人状态类型 - `multiplayer/state/MultiplayerState.ts` → 搬到 `ui_layer/index/multiplayer/state/MultiplayerState.ts` - `multiplayer/components/MultiplayerHall.tsx` → 搬到 `ui_layer/index/multiplayer/components/MultiplayerHall.tsx` ## 状态 - 编译零错误 - 服务端 room-service 包已迁到 packages/ 下（从 demos/ 复制） - 房间初始位置：startX=-10, step=20 - 相机位置：[0, 20, 25] - 端口：服务端 4003，前端 8093 - **自动化测试已通过** ✅ - Playwright 已全局安装，Chromium 已下载 ## 自动化测试 - 脚本：`packages/frontend/test/multiplayer/auto-test",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-09T04:46:42.265Z",
+      "lastRecalledAt": "2026-06-09T04:46:42.265Z",
+      "queryHashes": [
+        "0a3e9881ba48"
+      ],
+      "recallDays": [
+        "2026-06-09"
+      ],
+      "conceptTags": [
+        "网络",
+        "logic-layer/inputmanager.ts",
+        "room-service",
+        "render-layer",
+        "multiplayerrender.ts",
+        "渲染",
+        "逻辑",
+        "logic-layer"
+      ]
+    },
+    "memory:memory/2026-05-26.md:1:39": {
+      "key": "memory:memory/2026-05-26.md:1:39",
+      "path": "memory/2026-05-26.md",
+      "startLine": 1,
+      "endLine": 39,
+      "source": "memory",
+      "snippet": "# 2026-05-26 对话记录 ## QMD 记忆系统安装配置（07:00-07:18） 兄弟要求启动 **QMD（Quantum Memory Database）** 记忆系统，参考知乎文章： https://zhuanlan.zhihu.com/p/2004224376657159734 ### 安装步骤 1. **安装 bun** — `npm i -g bun` 2. **安装 QMD** — `bun install -g github:tobi/qmd` 3. **Build QMD** — 在 `~\\.bun\\install\\global\\node_modules\\@tobilu\\qmd` 下 `bun install && bun run build` 4. **安装 SQLite** — 下载 SQLite 工具到 `C:\\sqlite`，加入 PATH 5. **配置 openclaw.json** — 添加 `memory.backend: \"qmd\"` （timeoutMs: 8000） 6. **下载 3 个 GGUF 模型** — 通过 `qmd pull`（需设置 `HF_ENDPOINT=https://hf-mirror.com` 解决国内访问 HuggingFace 的问题） 7. **重启 Gateway** — `openclaw gateway restart` ### 安装的模型（~2.1GB） - embeddinggemma-300M-Q8_0（318MB）— 嵌入 - qwen3-",
+      "recallCount": 1,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 1,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-09T06:13:17.458Z",
+      "lastRecalledAt": "2026-06-09T06:13:17.458Z",
+      "queryHashes": [
+        "1fc1374ed8c5"
+      ],
+      "recallDays": [
+        "2026-06-09"
+      ],
+      "conceptTags": [
+        "embedding",
+        "gateway",
+        "qmd",
+        "00-07",
+        "tobi/qmd",
+        "node-modules",
+        "openclaw.json",
+        "memory.backend"
+      ]
+    },
+    "memory:memory/2026-05-15.md:73:106": {
+      "key": "memory:memory/2026-05-15.md:73:106",
+      "path": "memory/2026-05-15.md",
+      "startLine": 73,
+      "endLine": 106,
+      "source": "memory",
+      "snippet": "- 其他方向：ECS 化状态机、空间分区、异步加载管线 ### 读图能力（15:35-15:39） - 模型（DeepSeek v4 Flash）不支持多模态/视觉，无法直接解析图片内容 - `read` 工具能接收图片文件，但当前模型没有 vision 能力 ### 云同步方案（15:43-15:45） - 讨论 OpenClaw 数据同步到另一台电脑的三种方案 - 最终创建了 **openclaw-backup-sync** skill - skill 位置：`skills/openclaw-backup-sync/` - 包含 SKILL.md 指南 + sync-workspace.ps1 一键同步脚本 - 覆盖：Git 同步、OneDrive 同步、openclaw backup 归档 ### 自动记忆归档机制（15:30-15:32） - 兄弟要求每次对话后自动提取重点保存到记忆 - 设定保存间隔：最少1分钟、最多5分钟 - 通过 HEARTBEAT.md 任务和 memory/save-state.json 实现 - 长期记到 MEMORY.md，详细记到 daily log ## 工作协议确立 1. 兄弟下指令 → 先回确认信息 → 再调工具干活 2. 确认和干活分两轮回复，确保兄弟能看到确认 3. 重启 Gateway 时自动进行 ## 数据源状态 - ✅ 微信 — 正常 - ✅ QQ Bot — 正常 - 🔴 Discord — 禁用（被墙） - ✅ 博客园 — 可读 - ✅ 知乎 — 需",
+      "recallCount": 2,
+      "dailyCount": 0,
+      "groundedCount": 0,
+      "totalScore": 2,
+      "maxScore": 1,
+      "firstRecalledAt": "2026-06-09T06:13:17.458Z",
+      "lastRecalledAt": "2026-06-09T07:22:12.532Z",
+      "queryHashes": [
+        "1fc1374ed8c5",
+        "bc6103d4e406"
+      ],
+      "recallDays": [
+        "2026-06-09"
+      ],
+      "conceptTags": [
+        "backup",
+        "gateway",
+        "35-15",
+        "不支持多模态/视觉",
+        "43-15",
+        "openclaw-backup-sync",
+        "skills/openclaw-backup-sync",
+        "skill.md"
       ]
     }
   }

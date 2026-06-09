@@ -9,6 +9,13 @@
 ## 工作协议
 - 兄弟下指令后，**先回一句确认信息**再开始干活
 - 重启 Gateway 时直接自动重启，不问
+- 大改动/架构变化：先出方案等兄弟确认，确认后再实现
+- 小改动：直接搞，事后给详细总结
+- 兄弟手动测试前，注意检查是否需要重启服务端清除脏数据
+- 默认测试方式为自动化测试（Playwright auto-test.cjs），不再手动测试
+- 实现代码后直接告诉兄弟，不跑任何测试
+- 兄弟喊测试时再跑 BDD + 自动化测试
+- 自动化测试后，重启服务端清除脏数据，方便兄弟手动测试
 
 ## 已接入的渠道
 - **微信** — 正常
@@ -42,14 +49,26 @@
 - 单位类型: Giantess、LittleMan、Army（步兵/车辆/炮塔）、Boss
 - 包含: packages, mods, demos, asset-lib, defaults, teach, mine, doc
 
+### 多人联机架构
+- 服务端: `packages/room-service/`（WebSocket, 15FPS tick, port 4003）
+- 共享逻辑: `packages/logic/`（playerState, executeCommand, isCollision）
+- 客户端渲染: `ThreeRenderer` 实现 `IRenderer` 接口
+- 渲染循环: `Loop.loopForMultiplayer(15)` → `renderFrame()`
+- MVP 页面: `ui_layer/index/multiplayer/components/MultiplayerHall.tsx`
+- BDD 测试: `packages/logic/test/`（5 场景）, `packages/frontend/test/`（6 场景）
+- 自动化测试: `packages/frontend/test/multiplayer/auto-test.cjs`（Playwright）
+
 ---
 
 ## 工作协议
-
-- 每次对话结束后，**提取重点保存到记忆系统**（daily log + MEMORY.md）
+- 需要重启服务端时直接自动重启，不问
+- 需要重启 Gateway 时直接自动重启，不问
+- **架构变化、设计思考** → 尽量全部记录（做什么、为什么、取舍）
+- **代码修改** → 尽量详细记录要点，因为后续新对话中要继续改（改了哪些文件、改动内容、注意点）
 - 保存间隔：最少1分钟，最多5分钟（由 heartbeat 触发检查）
 - 重要的决定、偏好、项目进展都归档到 memory/
 - 跟踪文件：memory/save-state.json
+- **GTS-Play 项目相关工作都要记录详细记忆**，便于新对话快速复现上下文
 
 ---
 
@@ -63,6 +82,17 @@
 - 已启用会话索引（sessions.enabled = true）
 
 ---
+
+## 黑话
+- 「小龙虾」= 喊我（OpenClaw-bot）
+
+## 代码规范
+- 所有代码必须提供详细的中文注释，说明函数的作用、参数含义、返回值
+- 尽量用函数式编程，不用 class
+- 逻辑层、接口层、抽象层的代码都必须要写 BDD 测试
+- 优先写：纯函数、算法、依赖外部较少的代码
+- UI 代码可以不写 BDD 测试（有必要时通知兄弟）
+- 测试复杂时先通知兄弟，由他决定是否继续
 
 ## GitHub 自动同步
 - 远程仓库：https://github.com/yyc-git/OpenClaw.git（master 分支）
