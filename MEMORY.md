@@ -84,6 +84,18 @@
 - 同步脚本：`skills/openclaw-backup-sync/scripts/auto-sync.ps1`
 - 排除：credentials/、tmp_*.json、*.log、node_modules/
 
+## Token 优化协议
+
+### exec 管道收敛（每次 exec 必须做）
+- `| Select-Object -First 5` / `-Last 5` 截断输出
+- `| Select-String "pattern"` 过滤，不用 `| findstr` 再 `| wc -l`
+- `2>$null` 过滤 stderr（Node deprecation warnings 是 token 大户）
+- `du -sh` 代替 `ls -la`，`Measure-Object` 代替 `grep -c`
+
+### 读文件优化
+- 大文件用 `offset`/`limit` 采样，不整篇读
+- 已在上下文里的文件不重复读
+
 ## compaction
 
 - reserveTokens=800000（20% 自动压缩）
