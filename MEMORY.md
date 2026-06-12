@@ -23,7 +23,7 @@
 ## 测试策略（必须遵守）
 每次实现需求、修 Bug、更新代码时：
 1. **先改代码**（实现需求/修复 Bug）
-2. **然后更新测试用例**（改/删/新增）
+2. **然后补上/更新测试用例**（改/删/新增），**不能漏**
 3. **运行测试**
 4. 如果有报错 → 先出方案，确认后直接修复
 5. 继续循环，直到全部通过
@@ -43,52 +43,43 @@
 **影响小的重构**（如重命名、提取小函数、删除死代码等）直接搞，事后说一声就行。
 
 ## 任务完成通知
-- **后台任务/子会话完成后，必须发消息通知兄弟**，不静默结束
+- **任何任务完成后，必须发消息通知兄弟**，不管是不是子会话/后台任务
 - 因为兄弟可能在别的 tab，不会盯着等
 - **优先通过飞书发送通知**（已配好 feishu 渠道），切出去也能在手机上收到
+- **需要兄弟确认/回复的情况，也必须发飞书通知**，不要干等
+- **等待兄弟回复/确认期间，不要消耗 token**，保持 NO_REPLY
+- **发完飞书通知后 = 任务结束**，不要回复飞书 bot，等兄弟进一步指示
 - 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
-- 通知内容包含：做了什么、结果、下一步（如果有）
+- 飞书通知方式：使用 cron announce（代替 sessions_send/message）
+- **飞书通知内容必须小于 10 个字**，简短到飞书消息卡片能直接显示一句话
+  ```json
+  // 一次性通知
+  cron add job={
+    name: "feishu-notify",
+    schedule: { kind: "at", at: "<ISO-timestamp>" },
+    payload: { kind: "agentTurn", message: "告诉用户：<通知内容>", lightContext: true },
+    delivery: { mode: "announce", channel: "feishu", to: "user:ou_2412e799eac60d83f54ecb2601f0ba80" },
+    sessionTarget: "isolated",
+    deleteAfterRun: true,
+    timeoutSeconds: 30
+  }
+  ```
+  优点：不创建持久会话，不积累上下文，用完即删，token 消耗极低
 
 ## 已接入的渠道
 - **微信** — 正常
 - **QQ Bot** — 已接入（AppID: 1904014751）
 - **Discord** — 已配但被GFW墙了，目前禁用
 
-## 多人联机改造（状态同步 MVP）
-- 2026-06-08：基于已有帧同步 demo（basic1）创建了状态同步 MVP（new_basic2）
-- 做了完整的状态同步改造：服务端 authoritative tick 循环 + 状态插值渲染
-- 目录：`demos/new_basic2/`（客户端），`demos/room-service/`（服务端，Game.ts 重写）
-- 服务端端口 4003，客户端 dev server 端口 8094
-- 技术栈：TSRPC WebSocket + 自定义 meta3d 引擎
-- 2026-06-08 13:04：跑通！两个玩家联机成功，方块移动+碰撞检测正常
-- 关键决策：去掉 meta3d 引擎（setLocalPosition 运行时不生效），改用纯 Three.js 渲染
-- 包大小：20.6MB → 7.95MB
-
-## 优化
-- thinking 级别改为 low（日常），高复杂度任务用子会话跑 high
-
-## 已接入的数据源
-- **DeepSeek 网页版** — 已登录，可查历史对话
-- **博客园** — https://www.cnblogs.com/chaogex
-- **知乎** — https://www.zhihu.com/people/chaogex
-- **GTS-Play 项目** — 本地代码
-
 ## 项目
 
 ### GTS-Play
 - 路径: `D:/Github/GTS-Play/`
 - Lerna monorepo, Three.js + React
-- 单位类型: Giantess、LittleMan、Army（步兵/车辆/炮塔）、Boss
-- 包含: packages, mods, demos, asset-lib, defaults, teach, mine, doc
-
-### 多人联机架构
-- 服务端: `packages/room-service/`（WebSocket, 15FPS tick, port 4003）
-- 共享逻辑: `packages/logic/`（playerState, executeCommand, isCollision）
-- 客户端渲染: `ThreeRenderer` 实现 `IRenderer` 接口
-- 渲染循环: `Loop.loopForMultiplayer(15)` → `renderFrame()`
-- MVP 页面: `ui_layer/index/multiplayer/components/MultiplayerHall.tsx`
-- BDD 测试: `packages/logic/test/`（5 场景）, `packages/frontend/test/`（6 场景）
-- 自动化测试: `packages/frontend/test/multiplayer/auto-test.cjs`（Playwright）
+- 单位类型: Giantess、LittleMan、Army、Boss
+- 完整记忆：`D:\Github\GTS-Play\memory\CONSOLIDATED-MEMORY.md`
+- 项目索引：`D:\Github\GTS-Play\memory\GTS-Play-Project-Index.md`
+- 代码规范/yarn修复/多人联机架构等详见上述文档
 
 ---
 
@@ -99,12 +90,27 @@
 - **代码修改** → 尽量详细记录要点，因为后续新对话中要继续改（改了哪些文件、改动内容、注意点）
 - 重要的决定、偏好、项目进展都归档到 memory/
 - 跟踪文件：memory/save-state.json
-- **GTS-Play 项目相关工作都要记录详细记忆**，便于新对话快速复现上下文
+- **GTS-Play 项目相关工作，记忆优先存到 `D:\Github\GTS-Play\memory\` 下的项目文档中**，内容尽量详细，便于新对话快速复现上下文
+- 每次保存记忆时，顺便检查并更新项目文档（日期、状态、头信息等）
+
+## 工作方式优化（2026-06-11）
+1. **grep 代替 read** — 用 `Select-String` 定位信息，需要时才 `read` 全文
+2. **上下文裁剪** — 跑 `/compact` 压缩旧上下文
+3. **logic/ 中只有 .res 代码**，不包含 .ts 文件
+4. **客户端只渲染，服务端做逻辑** — 旋转补偿等在 Movement.res 处理
 
 ## 开发流程（2026-06-10 起）
 1. 复杂改动：**先出 Spec → 兄弟确认 → 再写代码 → 走测试流程**
 2. 关键决策（为什么选 A 不选 B、踩了什么坑）提炼到 MEMORY.md，不只是记流水账
 3. 充分利用 QMD + session 索引，定期把 memory log 中的关键决策提炼到 MEMORY.md
+
+## 子会话→代码→测试→通知 完整流程
+1. **子会话写代码**（high thinking，直接改文件，不依赖跨会话消息）
+2. **主会话跑 BDD 测试**
+3. **有错误 → 自动修复**（如 MockRenderer 缺接口方法）
+4. **无错误 → 检查是否需要新增 BDD 测试**（覆盖改动的代码）
+5. **全部通过 → 飞书通知兄弟**
+   - 使用 cron announce 一次性通知（详见上方「飞书通知方式」）
 
 ---
 
@@ -123,31 +129,15 @@
 - 「小龙虾」= 喊我（OpenClaw-bot）
 
 ## 代码规范
-- 所有代码必须提供详细的中文注释，说明函数的作用、参数含义、返回值
-- **rescript 中尽量不要用 `%raw`，必须用时需先问兄弟确认**
-- **对象字面量用函数返回**（如 `let getX = () => {...}`），避免全局修改
-- 尽量用函数式编程，不用 class
-- **state 作为参数传入，修改后返回新 state，不修改入参**
-- 逻辑层、接口层、抽象层的代码都必须要写 BDD 测试
-- 优先写：纯函数、算法、依赖外部较少的代码
-- UI 代码可以不写 BDD 测试（有必要时通知兄弟）
-- 测试复杂时先通知兄弟，由他决定是否继续
+- 详见 `D:\Github\GTS-Play\memory\CONSOLIDATED-MEMORY.md#八设计原则`
+- 要点：详细中文注释、函数式编程、纯函数优先、state 不可变
 
-## yarn 修复
-`demos/` 和 `packages/` 有同名包时 yarn workspace 会冲突。
-修复方法：在项目根目录执行 `yarn clean`，然后 `yarn bootstrap`。
-
-重命名项目后也要执行 `yarn bootstrap`（不需要先 clean）。
-
-一般不需要先 `yarn clean`，除非依赖坏了需要重装依赖。
-
-新增项目到已有 workspace glob（如 `packages/*`）后，只需 `yarn install` 即可更新链接，不用跑完整的 `yarn bootstrap`。
-
-如果新项目无/少外部 npm 依赖（纯源码），可以在 `node_modules` 直接建 junction 加速：
-```bash
-cd D:\Github\GTS-Play\node_modules
-mklink /J meta3d-commonlib-new ..\packages\meta3d-commonlib-new
-```
+## 同步源文件（硬性规定）
+- **`.ts` → 改 `.ts` 再 `tsc` 编译**，不要直接改 `.js`
+- **`.res` → 改 `.res` 再 `rescript build` 编译**，不要直接改 `.js`
+- 改 `.gen.tsx`（生成的 TS 类型）→ 必须同步改 `.res`
+- 否则下次编译会覆盖手动改动，源文件不一致
+- 服务端代码改完 `.ts` → `tsc` 编译 → 重启服务
 
 ## GitHub 自动同步
 - 远程仓库：https://github.com/yyc-git/OpenClaw.git（master 分支）
