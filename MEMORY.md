@@ -4,9 +4,11 @@
 
 - 游戏开发者，中文，时区 Asia/Shanghai (UTC+8)
 - 叫我「兄弟」，我回「兄弟」🤜🤛，不是主仆
+- 黑话：「小龙虾」= 喊我
 
 ## 工作协议
 
+- 都在当前会话中进行，不开子会话
 - 兄弟下指令 → **先回确认**再干活
 - 重启 Gateway/服务端 → 直接自动重启，不问
 - 大改动/架构变化 → 先出方案等确认，确认后实现
@@ -40,45 +42,35 @@
 
 ## 任务完成通知
 
-- **任何任务完成后必须发消息通知兄弟**，不管是不是后台/子会话
-- **优先飞书**（已配好渠道），手机上也能收到
-- **需要兄弟确认的情况也必须发飞书通知**，不干等
-- **等回复期间保持 NO_REPLY，不消耗 token**
+- **任何任务完成后必须发飞书通知兄弟**，内容 <10 字
 - 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
-- 通知方式：`cron add` 一次性 job，`delivery: { mode: "announce", channel: "feishu", to: "user:ou_..." }`
-- **通知内容 <10 字**
+- 通知方式：`cron add` 一次性 job + delivery announce feishu
+- **等回复期间保持 NO_REPLY，不消耗 token**
 
 ## 已接入渠道
 
-- **微信** ✅ | **QQ Bot** ✅（AppID: 1904014751） | **Discord** ❌（GFW墙了）
+微信 ✅ | QQ Bot（AppID: 1904014751）✅ | Discord ❌（GFW）
 
 ## 项目：GTS-Play
 
 - 路径: `D:/Github/GTS-Play/`，Lerna monorepo, Three.js + React
-- 完整记忆: `D:\Github\GTS-Play\memory\CONSOLIDATED-MEMORY.md`
-- 项目索引: `D:\Github\GTS-Play\memory\GTS-Play-Project-Index.md`
-- 代码规范/架构详见上述文档
-- **记忆优先存到项目文档中**，内容尽量详细
-- 每次保存记忆时，顺便检查更新项目文档（日期、状态等）
+- 记忆/索引：`memory/CONSOLIDATED-MEMORY.md` + `memory/GTS-Play-Project-Index.md`
+- 代码规范/架构详见项目文档
+- 每次保存记忆时顺便更新项目文档（日期、状态等）
 
 ## 开发流程
 
-1. 复杂改动 → **先出 Spec → 兄弟确认 → 写代码 → 走测试**
-2. 关键决策（为什么选 A 不选 B、踩了什么坑）提炼到 MEMORY.md
-3. 子会话写代码 → 主会话跑 BDD → 报错自动修复 → 补新测试 → 全过 → 飞书通知
+复杂改动 → **先出 Spec → 兄弟确认 → 写代码 → 走测试**
+关键决策（为什么选 A 不选 B、踩了什么坑）提炼到 MEMORY.md
 
 ## QMD 记忆系统
 
-已启用 ✅ 后端 QMD v2.5.2，模型共 ~2.1GB（embeddinggemma-300M + qwen3-reranker-0.6b + qmd-query-expansion-1.7B），SQLite at C:\sqlite，RTX 2060 SUPER（Vulkan）GPU 加速。已启用会话索引。
-
-## 黑话
-
-- 「小龙虾」= 喊我（OpenClaw-bot）
+已启用 ✅
 
 ## 代码规范（要点）
 
-- 详细中文注释、函数式编程、纯函数优先、state 不可变
-- 详见 `D:\Github\GTS-Play\memory\CONSOLIDATED-MEMORY.md#八设计原则`
+详细中文注释、函数式编程、纯函数优先、state 不可变
+详见 `memory/CONSOLIDATED-MEMORY.md#八设计原则`
 
 ## 同步源文件（硬性规定）
 
@@ -88,12 +80,13 @@
 
 ## GitHub 同步
 
-- SSH remote（`git@github.com:yyc-git/OpenClaw.git`，SSH 不会被 GFW 封）
+- SSH remote（`git@github.com:yyc-git/OpenClaw.git`）
 - 同步脚本：`skills/openclaw-backup-sync/scripts/auto-sync.ps1`
 - 排除：credentials/、tmp_*.json、*.log、node_modules/
 
-# compaction 配置
-- reserveTokens=800000（20% 就自动压缩）
+## compaction
+
+- reserveTokens=800000（20% 自动压缩）
 
 ---
 

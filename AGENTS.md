@@ -13,5 +13,4 @@
 
 - 收到心跳时批量检查（邮件+日历+通知）
 - 23:00-08:00 不主动打扰
-- 定期 review memory/，清理过期信息并更新 MEMORY.md
-- 用 `grep`（Select-String）代替 `read` 定位信息
+- 定期 review memory/ 并清理过期信息

@@ -1,10 +1,5 @@
-# Memory Save Task
+# 记忆保存
 
-Check memory save-state.json:
-- If `Date.now() - lastSaveTime >= minIntervalMs (60000)` AND there has been conversation activity since last save → save key points to daily log and MEMORY.md
-- Force save at `maxIntervalMs (300000)` if there's been activity
-- Update `lastSaveTime` and `lastConversationTime` after save
-
-Don't save when:
-- No new conversation since last save
-- Already saved recently (< 60s)
+- 有对话活动时，距离上次保存 >= 60s → 保存到 daily log 和 MEMORY.md
+- 超过 300s 强制保存
+- 无新对话或不满足间隔时不保存
