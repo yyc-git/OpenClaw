@@ -40,12 +40,22 @@
 
 需重构 → 出方案等确认 → 走测试流程。小重构（重命名/提函数/删死代码）直接搞，事后说一声。
 
+## 开工规则
+- **出方案后必须等兄弟明确说「开工」或「开干」才能动手**
+- 「要记住」「好的」不等于同意开工
+
+## 修改代码后必做
+- **更新 BDD 测试**
+- **更新契约检查**（新加/调整 requireCheck/ensureCheck）
+- **更新项目文档**（memory/ 中的项目文档）
+
 ## 任务完成通知
 
-- **任何任务完成后必须发飞书通知兄弟**，内容 <10 字
+- **任何任务完成后必须发飞书通知兄弟**，内容 **不超过 10 个字**
+- **需要兄弟确认的场景也要发飞书通知**（不超过 10 个字）：给出方案后、完成需求后、完成任务后，都要发通知让兄弟切回来确认
 - 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
 - 通知方式：`cron add` 一次性 job + delivery announce feishu
-- **等回复期间保持 NO_REPLY，不消耗 token**
+- **等回复期间保持 NO_REPLY，不消耗 token**（包括发通知后等确认 / 等兄弟测试后反馈）
 
 ## 已接入渠道
 
@@ -99,6 +109,21 @@
 ## compaction
 
 - reserveTokens=800000（20% 自动压缩）
+
+## 关键决策
+
+### MMD IK 修复 (`_animatePMXMesh`)
+- Loop 前 save/zero mesh.transform + `mesh.updateMatrixWorld(true)` → IK 在 mesh-local 空间解算
+- 修改文件：`packages/meta3d-jiehuo-abstract/src/three/MMDAnimationHelper.js`
+
+### 移动朝向
+- `handleCubeNotMove` 不碰 `rotationY`，保持最后一次移动朝向
+- `applyMove` 用 `atan2(moveX, moveZ)` 计算
+- 空闲时相机旋转不追踪模型（客户端渲染层待优化）
+
+### 通知协议
+- 改 logic 后重启 room-service（不是 match-service）+ copy dist 到 `room-service/dist/logic/`
+- Match-service 不直接运行 logic 代码，走 HTTP/WS 调 room-service
 
 ---
 
