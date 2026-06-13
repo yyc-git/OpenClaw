@@ -47,14 +47,51 @@
 ## 修改代码后必做
 - **更新 BDD 测试**
 - **更新契约检查**（新加/调整 requireCheck/ensureCheck）
+- **更新防御式编程** — 检查新增/修改的代码中是否有中间位置的非空/边界校验（不应该用 requireCheck），统一用 `if/else throw` 模式
 - **更新项目文档**（memory/ 中的项目文档）
+
+## 编程流程
+
+统一使用 **TDD + 契约检查 + 防御式编程**
+
+### feat（实现功能）
+1. **对每个要修改的文件，先写对应测试** → 出方案 → 飞书通知 → 等确认
+2. 运行测试确认新测试预期失败（**跑全部 BDD 测试**）
+3. 实现功能 → 更新契约检查 → 更新防御式编程
+4. 运行测试 → 全通过（**跑全部 BDD 测试**）
+5. 重构（大改需再出方案确认）→ 运行测试 → 全通过（**跑全部 BDD 测试**）
+6. 看情况更新项目文档
+7. 飞书通知总结
+
+### fix（修复）
+1. **对每个要修改的文件，先写对应测试** → 出方案 → 飞书通知 → 等确认
+2. 运行测试（**跑全部 BDD 测试**）
+3. 修复 → 更新契约检查 → 更新防御式编程
+4. 运行测试 → 全通过（**跑全部 BDD 测试**）
+5. 重构（大改需方案确认）→ 运行测试 → 全通过（**跑全部 BDD 测试**）
+6. 看情况更新项目文档
+7. 飞书通知总结
+
+### refactor（重构）
+1. 出方案 → 飞书通知 → 等确认
+2. 重构 → 更新契约检查 → 更新防御式编程
+3. 运行测试（**跑全部 BDD 测试**）
+4. 看情况更新项目文档
+5. 飞书通知总结
+
+### 其它
+- 大改：出方案 → 飞书通知 → 等确认 → 修改 → 通知总结
+- 小改：直接改 → 通知总结
 
 ## 任务完成通知
 
 - **任何任务完成后必须发飞书通知兄弟**，内容 **不超过 10 个字**
 - **需要兄弟确认的场景也要发飞书通知**（不超过 10 个字）：给出方案后、完成需求后、完成任务后，都要发通知让兄弟切回来确认
 - 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
-- 通知方式：`cron add` 一次性 job + delivery announce feishu
+- 通知方式：`cron add` 一次性 job + `delivery.announce` feishu，`to` 必须填 `"user:ou_2412e799eac60d83f54ecb2601f0ba80"`（带 `user:` 前缀）
+  - ❌ `sessions_send` 到 feishu direct session → 卡住不投递
+  - ❌ cron announce 不带 `to` 或漏 `user:` 前缀 → 投递失败
+- **2026-06-13 18:30 更正**：`sessions_send` 到 feishu direct session **实际能投递**，但会触发 bot 自动回复一条消息。短期通知可用，但 bot 回复可能干扰会话
 - **等回复期间保持 NO_REPLY，不消耗 token**（包括发通知后等确认 / 等兄弟测试后反馈）
 
 ## 已接入渠道
@@ -106,6 +143,16 @@
 - 大文件用 `offset`/`limit` 采样，不整篇读
 - 已在上下文里的文件不重复读
 
+## 保存协议
+
+每次兄弟说「保存」时，执行以下流程：
+1. **更新 BDD 测试** — 检查今天改动的代码，补充/修改 feature + step 文件；修复旧测试中不匹配 API 的命令格式
+2. **更新契约检查** — 检查 requireCheck/ensureCheck 是否覆盖了新增/修改的函数；删除的校验路径不补
+3. **更新防御式编程** — 检查新增/修改的代码中是否有中间位置的非空/边界校验（不应该用 requireCheck），统一用 `if/else throw` 模式
+4. **更新项目文档** — 更新 `memory/GTS-Play-Project-Index.md` 中相关条目
+5. **保存今日记忆** — 更新 `memory/YYYY-MM-DD.md` + `MEMORY.md`
+6. **同步到 GitHub** — OpenClaw（个人同步）→ `master`，GTS-Play（项目代码）→ `dev`
+
 ## compaction
 
 - reserveTokens=800000（20% 自动压缩）
@@ -118,12 +165,26 @@
 
 ### 移动朝向
 - `handleCubeNotMove` 不碰 `rotationY`，保持最后一次移动朝向
+
+### 架构重构完毕（2026-06-13 19:56）
+- `logic_layer/` 零 render 依赖：MMDManager/LittleManManager 纯逻辑状态机，CommandManager 移除 MR import
+- `business_layer/multiplayer/` 新建：ManageScene 编排逻辑+渲染，MultiplayerLoop 游戏循环
+- 50/50 BDD 测试全过 ✅
 - `applyMove` 用 `atan2(moveX, moveZ)` 计算
 - 空闲时相机旋转不追踪模型（客户端渲染层待优化）
 
 ### 通知协议
 - 改 logic 后重启 room-service（不是 match-service）+ copy dist 到 `room-service/dist/logic/`
 - Match-service 不直接运行 logic 代码，走 HTTP/WS 调 room-service
+
+### 重构原则（2026-06-13）
+- **实现代码中不能有测试代码** — `deps: { loadFbx?: mockFn }` 是测试开后门，不对
+- 正确做法：**依赖倒置（DIP）+ 单一职责**
+  - MMD 的 Three.js 操作下沉到渲染层（MultiplayerRender），ManageScene 通过 IRenderer 接口操作
+  - ThreeRenderer 只做原子渲染操作（addSceneNode/removeSceneNode/setPosition等）
+  - `loadFbx` 作为函数参数是正规的 DIP 模式，调用方（MultiplayerLoop）传入真实实现
+  - MultiplayerHall 创建 `new MultiplayerRender(new ThreeRenderer())` 组合调用
+- **预存错误必须解决** — 发现预存的编译/测试错误后不能跳过
 
 ---
 
