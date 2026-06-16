@@ -272,6 +272,18 @@
 ### E2E 场景1 自动测试（2026-06-16）
 - 会话 ba0c6e11 经历 3 轮迭代修复
 - **关键发现：** Playwright `page.on('console', ...)` 监听器在页面关闭后会导致赋值失败，变量进入 TDZ
-- **修复：** 日志收集变量加 `if (!logs1) continue` 守卫
-- **教训：** exec 启动的 Node 进程在会话 abort 后成为孤儿，需要额外清理
-- 当前代码已修但未跑通过，状态：代码就绪，待重新执行
+- **修复：** 改用 `injectLogger` 注入 `window.__logStore` 拦截 console.log，在 `login()`（page.goto）之后注入
+- 场景1 自动版已通过验收 ✅
+
+### 键盘监听 capture phase + 重构（2026-06-16）
+- **问题：** 游戏某处代码注册的 keydown 监听器调了 `stopImmediatePropagation`，堵塞 bubble 阶段 `onDown`
+- **修复：** `setupKeyboardListener` 改为在 capture phase（`addEventListener(..., true)`）写 keyState
+- **重构（删全局副作用）：** `window.__keyState` 被证明不必要。KeyboardManager.ts 和 CommandManager.ts 在同一个 webpack chunk（main.js）中，`readState/writeState` 指向同一个 `state_backup`。只保留 `processInputAndSendCommands` 内 `state = readState()` 重读即可
+- **删除的测试代码：** `__captureHit`、`__kbInit`、`__dirLog`、`[DBG]`、`window.__keyState` 全部从生产代码中清理
+- **保留的代码：** `blur`/`visibilitychange` handler（多窗口焦点切换防按键黏滞，正确做法）
+- **最终验证：** 自动+手动双验收通过 ✅
+
+### E2E 场景3 性能录制（2026-06-16）
+- 双独立窗口，各自浮层按钮「▶ 录制此窗口」，点哪个录哪个
+- CDP Profiler + FPS 挂钩 + API 耗时分析
+- 自适应屏幕宽度（检测 1920px 平分）
