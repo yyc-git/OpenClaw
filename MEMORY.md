@@ -131,6 +131,24 @@
 详细中文注释、函数式编程、纯函数优先、state 不可变
 详见 `memory/CONSOLIDATED-MEMORY.md#八设计原则`
 
+## Obsidian 笔记库
+
+游戏项目笔记统一写入 `D:\Github\GTS-Play\笔记/`（Obsidian vault），`memory/` 目录已删除。
+
+| 目录 | 用途 |
+|------|------|
+| `笔记/项目文档/` | 项目索引、累计记忆（`GTS-Play-Project-Index.md` + `CONSOLIDATED-MEMORY.md`） |
+| `笔记/决策记录/` | Bug 修复、架构决策 (ADR) |
+| `笔记/方案/` | 重构方案、功能实施方案 |
+| `笔记/讨论记录/` | 日常讨论要点 |
+| `笔记/代码笔记/` | 代码要点、踩坑记录 |
+
+**保存流程中自动写入 Obsidian：**
+- 更新 `笔记/项目文档/GTS-Play-Project-Index.md`
+- 更新 `笔记/项目文档/CONSOLIDATED-MEMORY.md`
+- 代码有改动 → 生成/更新 `笔记/代码笔记/` 对应条目
+- 有重要决策 → 写入 `笔记/决策记录/`
+
 ## 同步源文件（硬性规定）
 
 - **`.ts` → 改 `.ts` 再 `tsc`**，**`.res` → 改 `.res` 再 `rescript build`**，不要直接改 `.js`
@@ -161,8 +179,8 @@
 1. **更新 BDD 测试** — 检查今天改动的代码，补充/修改 feature + step 文件；修复旧测试中不匹配 API 的命令格式
 2. **更新契约检查** — 检查 requireCheck/ensureCheck 是否覆盖了新增/修改的函数；删除的校验路径不补
 3. **更新防御式编程** — 检查新增/修改的代码中是否有中间位置的非空/边界校验（不应该用 requireCheck），统一用 `if/else throw` 模式
-4. **更新项目文档** — 更新 `memory/GTS-Play-Project-Index.md` 中相关条目
-5. **保存今日记忆** — 更新 `memory/YYYY-MM-DD.md` + `MEMORY.md`
+4. **更新项目文档** — 更新 `笔记/项目文档/GTS-Play-Project-Index.md` 和 `笔记/项目文档/CONSOLIDATED-MEMORY.md`
+5. **保存今日记忆** — 更新 `memory/2026-06-16.md` + `MEMORY.md`
 6. **同步到 GitHub** — OpenClaw（个人同步）→ `master`，GTS-Play（项目代码）→ `dev`
 
 ## compaction
@@ -174,6 +192,13 @@
 兄弟说「代码审核」时进入审核流程：
 1. 给出距离上次代码审核或者保存后的代码要点、改动要点
 2. 分析需要重构/修改的地方，出方案
+
+## 验收规则（硬性规定）
+
+兄弟设置验收标准后：
+- 默认必须通过，不通过则一直修改直到通过
+- 默认总超时 1 小时
+- 每次改完自动跑测试，不通过继续修
 
 ## 关键决策
 
@@ -194,6 +219,35 @@
 ### 通知协议
 - 改 logic 后重启 room-service（不是 match-service）+ copy dist 到 `room-service/dist/logic/`
 - Match-service 不直接运行 logic 代码，走 HTTP/WS 调 room-service
+
+### E2E 验收通过（2026-06-16）
+- 根因：heartbeat timeout（5s）在 `initForMultiplayer` 加载 FBX 期间触发，导致 WS 断开
+- 修复：
+  - `MultiplayerManager.connect()` 心跳 timeout 从 5s 改为 15s，加 `_waitWsReady` 确认底层 ready
+  - `MultiplayerLoop.loopForMultiplayer()` 加 `mp.isConnected` 守卫，未连接时跳过命令发送
+- E2E 测试改用 Playwright（`e2e-pw.cjs`），不依赖 OpenClaw browser CLI
+
+### E2E 调试（2026-06-15）
+- 多人联机调试用 `user` profile（chrome-mcp），不开隔离浏览器
+- 两个玩家用 `?user=player1` / `?user=player2` URL 参数区分（三处文件改动：backend/Main.ts, App.tsx, Login.tsx）
+- 脚本操作优先用 `evaluate` 替代 `snapshot`（0 snapshot，JS 直接操作 DOM）
+- `evaluate` 在 openclaw 隔离浏览器下页面未完全加载会挂住，user profile 下正常
+- `openclaw browser stop` 不杀 Chrome 进程，需要手动 kill 带 `.openclaw\browser` user-data-dir 的 Chrome 进程
+- 服务端启动顺序：room-service → match-service → frontend，必须在同一持续进程中
+- E2E 脚本路径：`packages/frontend/test/e2e/e2e-multiplayer.ps1`（场景1）、`e2e-monitor.ps1`（场景2）
+
+#### Console 日志捕获
+- `console --level all` 在 `user` profile 下**不捕获页面 console.log**（只抓 Doctor warnings）
+- 替代方案：用 `evaluate` 注入拦截器覆写 `console.log`/`error`，写入 `window.__logStore`
+- `Get-Logs` 读取并清空 store
+- 拦截器跳过 `[RecvMsg] GameState` / `[Client] GameState received`（数据量太大），保留 `[ApiReq]`、`[ApiRes]`、`[ERR]`、`[Client] GameState players:`
+
+#### Tab 切换策略
+- `user` profile 通过 Chrome MCP 连接，一次只暴露一个活跃 tab，无法不 focus 就抓指定 tab 的日志
+- **场景1（全自动）**：先读当前活跃 tab（player2）再 focus player1，读前 URL 验证，结束时异步开 about:blank
+- **场景2（手动玩）**：不 focus，只读当前 tab，不打断用户操作
+- tab 关闭：`Start-Process powershell -WindowStyle Hidden` 异步独立进程，不受脚本 kill 影响
+- 场景2 的 tab ID 存 `session.json`，手动停时读文件关
 
 ### 重构原则（2026-06-13）
 - **实现代码中不能有测试代码** — `deps: { loadFbx?: mockFn }` 是测试开后门，不对
