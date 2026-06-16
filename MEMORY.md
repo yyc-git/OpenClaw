@@ -90,8 +90,10 @@
 
 ## 任务完成通知
 
-- **任何任务完成后必须发飞书通知兄弟**，内容 **不超过 10 个字**
-- **需要兄弟确认的场景也要发飞书通知**（不超过 10 个字）：给出方案后、完成需求后、完成任务后，都要发通知让兄弟切回来确认
+- **任何任务完成后必须发飞书通知兄弟**：验收通过、中途终止、需要兄弟确认，都要发
+- **验收类任务的通知要详细点**：写明结果（通过/终止）、关键指标、改动要点，10 字不够就多写
+- 普通确认场景（方案、需求完成）：可以简短
+- 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
 - 飞书用户 ID：`ou_2412e799eac60d83f54ecb2601f0ba80`
 - 通知方式（优先级）
   - **首选：`exec` 调用 `OpenClaw message send --channel feishu`**
@@ -226,6 +228,7 @@
   - `MultiplayerManager.connect()` 心跳 timeout 从 5s 改为 15s，加 `_waitWsReady` 确认底层 ready
   - `MultiplayerLoop.loopForMultiplayer()` 加 `mp.isConnected` 守卫，未连接时跳过命令发送
 - E2E 测试改用 Playwright（`e2e-pw.cjs`），不依赖 OpenClaw browser CLI
+- 场景1/2 跑完后日志先保留，分析总结后问兄弟是否删除
 
 ### E2E 调试（2026-06-15）
 - 多人联机调试用 `user` profile（chrome-mcp），不开隔离浏览器
@@ -265,3 +268,10 @@
 - **方案**：GIANTESS_BONE_GROUPS Torso 只用 spatial（上半身2→下半身，radius: 0.95），删 boneNames 兜底
 - radius=0.95 < 肩半宽(左肩C/右肩C=1.094) → 排除手臂，Z 方向不覆盖胸部
 - boneNames 兜底去掉 → 不包含 TrigoneAndButt 区域（下半身权重顶点）
+
+### E2E 场景1 自动测试（2026-06-16）
+- 会话 ba0c6e11 经历 3 轮迭代修复
+- **关键发现：** Playwright `page.on('console', ...)` 监听器在页面关闭后会导致赋值失败，变量进入 TDZ
+- **修复：** 日志收集变量加 `if (!logs1) continue` 守卫
+- **教训：** exec 启动的 Node 进程在会话 abort 后成为孤儿，需要额外清理
+- 当前代码已修但未跑通过，状态：代码就绪，待重新执行
