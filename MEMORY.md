@@ -10,7 +10,7 @@
 
 - 都在当前会话中进行，不开子会话
 - 兄弟下指令 → **先回确认**再干活
-- 重启 Gateway/服务端 → 直接自动重启，不问
+- 重启 Gateway → 先问兄弟确认（不在任何 Skill 中自动触发）
 - 大改动/架构变化 → 先出方案等确认，确认后实现
 - 小改动 → 直接搞，事后给总结
 - 兄弟手动测试前 → 检查是否需要重启服务端清脏数据
@@ -44,41 +44,8 @@
 
 ## 编程流程
 
-统一使用 **TDD + 契约检查 + 防御式编程**
-
-默认针对**多人联网**部分（room-service + logic/src + frontend/business_layer/multiplayer）
-所有改动点（含 frontend）都要覆盖
-
-### feat（实现功能）
-1. **出方案 → 飞书通知** → **等确认** → **然后对每个要修改的文件写对应测试**
-2. 先增加对应的测试 → 然后运行这些测试（**只跑新增的测试**）→ 应该按照预期而失败
-3. 实现功能 → 更新契约检查 → 更新防御式编程
-4. 运行测试 → 全通过（**跑全部 BDD 测试**）
-5. 重构（大改需再出方案确认）→ 运行测试 → 全通过（**跑全部 BDD 测试**）
-6. 看情况更新项目文档
-7. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
-8. **飞书通知总结（含代码要点，便于兄弟检查）**
-
-### fix（修复）
-1. **出方案 → 飞书通知** → **等确认** → **然后对每个要修改的文件写对应测试**
-2. 先增加对应的测试 → 然后运行这些测试（**只跑新增的测试**）→ 应该按照预期而失败
-3. 修复 → 更新契约检查 → 更新防御式编程
-4. 运行测试 → 全通过（**跑全部 BDD 测试**）
-5. 看情况更新项目文档
-6. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
-7. **飞书通知总结（含代码要点，便于兄弟检查）**
-
-### refactor（重构）
-1. 出方案 → 飞书通知 → 等确认
-2. 重构 → 更新契约检查 → 更新防御式编程
-3. 运行测试（**跑全部 BDD 测试**）
-4. 看情况更新项目文档
-5. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
-6. **飞书通知总结（含代码要点，便于兄弟检查）**
-
-### 其它
-- 大改：出方案 → 飞书通知 → 等确认 → 修改 → 通知总结
-- 小改：直接改 → 通知总结
+统一使用 **TDD + 契约检查 + 防御式编程**。默认针对多人联网部分。
+流程细节见 `skills/gts-dev-workflow/SKILL.md`。
 
 ## 重要记忆
 
@@ -93,48 +60,17 @@
 
 ## 保存协议
 
-> 注意：保存协议第7步「同步到 GitHub」包含 push，与上面的「提交git」规则不冲突
+> 已固化为 Skill（gts-save-flow）。流程细节见 `skills/gts-save-flow/SKILL.md`。
+> 注意：保存包含 push，与「提交git」规则不冲突。
 
-每次兄弟说「保存」时，执行以下流程：
-1. **自动代码审核 + 重构** — 全自动，不打断
-   — 读 `.last-review`（存于 `笔记/决策记录/`），`git diff` 出改动文件清单
-   — 对每个改动文件执行重构规则（见下表），改完直接跑全部 BDD 测试
-   — 测试不通过 → 回退本次重构，记警告到审核摘要
-   — 摘要写入 `memory/`，更新 `.last-review = HEAD`
+## 验收规则
 
-   重构规则表：
-   | 优先级 | 规则 | 自动操作 |
-   |--------|------|----------|
-   | 🔴 | 测试代码残留（`window.__xxx`, `[DBG]`） | 直接删 |
-   | 🔴 | 未使用 import | 直接删 |
-   | 🟡 | 文件 >500 行 | 按 export 拆文件 |
-   | 🟡 | 函数 >100 行 | 提子函数 |
-   | 🟡 | 重复代码 ≥3 处 | 提公共函数 |
-   | 🟢 | 混合 logic+render 职责 | 记摘要（不自动改） |
-   | 🟢 | 条件嵌套 >3 层 | 加 `// TODO: 降低复杂度` |
-   | 🟢 | 导出函数缺 JSDoc | 补占位注释 |
+> 已固化为 Skill（gts-acceptance）。见 `skills/gts-acceptance/SKILL.md`。
 
-2. **更新 BDD 测试** — 检查今天改动的代码（含重构后的），补充/修改 feature + step 文件；修复旧测试中不匹配 API 的命令格式
-3. **更新契约检查** — 检查 requireCheck/ensureCheck 是否覆盖了新增/修改的函数；删除的校验路径不补
-4. **更新防御式编程** — 检查新增/修改的代码中是否有中间位置的非空/边界校验（不应该用 requireCheck），统一用 `if/else throw` 模式
-5. **更新项目文档** — 更新 `笔记/项目文档/GTS-Play-Project-Index.md` 和 `笔记/项目文档/CONSOLIDATED-MEMORY.md`
-6. **保存今日记忆** — 更新 `memory/2026-06-16.md` + `MEMORY.md`
-7. **同步到 GitHub** — OpenClaw（个人同步）→ `master`，GTS-Play（项目代码）→ `dev`
+## 通知
 
-## 验收规则（硬性规定）
-
-兄弟设置验收标准后：
-- 默认必须通过，不通过则一直修改直到通过
-- 默认总超时 1 小时
-- 每次改完自动跑测试，不通过继续修
-
-## 通知协议
-
-- 改 logic 后重启 room-service（不是 match-service）+ copy dist 到 `room-service/dist/logic/`
-- Match-service 不直接运行 logic 代码，走 HTTP/WS 调 room-service
-- **任务完成后必须飞书通知**（验证通过/终止/需确认）
-- 通知方式：`exec` → `openclaw message send --channel feishu --target "user:ou_2412e799eac60d83f54ecb2601f0ba80"`
-- 等回复期间保持 NO_REPLY
+- 飞书通知目标：`user:ou_2412e799eac60d83f54ecb2601f0ba80`
+- 任务完成后必须飞书通知，等回复期间保持 NO_REPLY
 
 ### 项目文件结构
 
@@ -198,20 +134,19 @@
 
 - reserveTokens=800000（20% 自动压缩）
 
-## Skill 流程固化
+## Skill 注册表
 
-- **gts-dev-workflow** — `feat:` / `fix:` / `refactor:` 触发，TDD+契约+BDD+飞书硬性流程
-- **gts-code-review** — `代码审核` / `审核` 触发，全手动 4 步交互式审查
-- 两个 Skill 的完整内容见 `skills/gts-dev-workflow/SKILL.md` 和 `skills/gts-code-review/SKILL.md`
-- 保存协议不触发 gts-code-review
-
-## 代码审核协议
-
-> 已固化为 Skill（gts-code-review），以下为原始协议留存
-
-兄弟说「代码审核」时进入审核流程：
-1. 给出距离上次代码审核或者保存后的代码要点、改动要点
-2. 分析需要重构/修改的地方，出方案
+| 触发词 | Skill | 文件 |
+|--------|-------|------|
+| `feat:` / `fix:` / `refactor:` | gts-dev-workflow | `skills/gts-dev-workflow/SKILL.md` |
+| `代码审核` / `审核` | gts-code-review | `skills/gts-code-review/SKILL.md` |
+| `保存` | gts-save-flow | `skills/gts-save-flow/SKILL.md` |
+| `验收` | gts-acceptance | `skills/gts-acceptance/SKILL.md` |
+| `e2e测试` / `e2e` | gts-e2e-test | `skills/gts-e2e-test/SKILL.md` |
+| `e2e自动` / `自动e2e` | gts-e2e-auto | `skills/gts-e2e-auto/SKILL.md` |
+| `e2e性能` / `性能测试` | gts-e2e-perf | `skills/gts-e2e-perf/SKILL.md` |
+| `启动服务` / `重启服务` | gts-service | `skills/gts-service/SKILL.md` |
+| `提交git` / `推送` | gts-git-commit | `skills/gts-git-commit/SKILL.md` |
 
 ## 关键决策（活跃条目）
 

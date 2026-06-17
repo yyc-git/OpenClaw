@@ -47,3 +47,5 @@ description: "兄弟说「启动服务」「重启服务」「停止服务」时
 2. 用 `yarn dev`，不是 `npx ts-node`；webpack 用 `yarn webpack:dev-server`
 3. webpack-dev-server 无配置改动时不重启
 4. 改 node_modules 必须先问兄弟
+5. **禁止重启 Gateway**：重启/停止服务时只操作 room-service、match-service、webpack-dev-server，不能杀 gateway 进程
+6. 停止服务时精确 kill 对应 PID，不用 `Get-Process node \| Stop-Process` 这种全杀命令

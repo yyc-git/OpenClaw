@@ -17,7 +17,7 @@ description: "兄弟说「代码审核」时触发，全手动交互：扫描改
 
 - 读 `.last-review`（`笔记/决策记录/`），获取上次审核的 commit
 - `git diff <last-review>..HEAD` 出改动文件清单
-- 筛掉：`node_modules/`、`dist/`、`笔记/`、`*.gen.tsx`
+- 筛掉：`.gitignore` 中匹配的内容、`node_modules/`、`dist/`、`*.gen.tsx`
 - ⚠️ **不筛 `test/`**，测试代码也在审核范围内
 
 输出格式：
