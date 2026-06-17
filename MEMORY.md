@@ -95,46 +95,71 @@
 - 同步脚本：`skills/openclaw-backup-sync/scripts/auto-sync.ps1`
 - 排除：credentials/、tmp_*.json、*.log、node_modules/
 
-## Token 优化协议
+## Token 优化协议 v2
+
+### 🔴 edit 优先于 write（最高优先）
+- 改动 < 20 行 → 用 `edit`（精确文本替换），**不需要** `read` 全文
+- 改动 > 20 行 → 先 `read(offset, limit=10)` 采样确认 → 再用 `edit`
+- 只有新建文件 / 完全重写 → 才用 `write`
+- 不确定改动范围 → 先 `Select-String -List` 定位 → `read(offset, limit=10)` → `edit`
 
 ### exec 管道收敛（每次 exec 必须做）
 - `| Select-Object -First 5` / `-Last 5` 截断输出
-- `| Select-String "pattern"` 过滤，不用 `| findstr` 再 `| wc -l`
-- `2>$null` 过滤 stderr（Node deprecation warnings 是 token 大户）
-- `du -sh` 代替 `ls -la`，`Measure-Object` 代替 `grep -c`
-- 独立的小命令合并到 1 个 exec（如同时 grep 多个文件，多个轻量检查写在一起）
-- 搜索路径加 `-ErrorAction SilentlyContinue`，范围限到 packages/ 内，避免扫 node_modules
+- `| Select-String "pattern" -List` 搜到即停
+- `2>$null` 过滤 stderr
+- Windows 用 `(Get-ChildItem | Measure-Object -Property Length -Sum).Sum / 1MB`，不用 `du -sh`
+- 计数用 `(Select-String "pattern" | Measure-Object).Count`，不用 `grep -c`
+- 同类独立命令合并到 1 个 exec（见下方标准模板）
+- 搜索限 `D:\Github\GTS-Play\` 范围，排除 `node_modules`、`.git`、`dist`
 
 ### 读文件优化
-- 大文件用 `offset`/`limit` 采样，不整篇读（>100 行必做）
+- 大文件用 `offset`/`limit` 采样（>100 行必做）
 - 已在上下文里的文件不重复读
-- 搜关键字段用 `Select-String` 而非 `read`，避免读整文件
-- 已知路径的小文件（如 `.last-review`）用 `Get-Content -TotalCount N`
+- 搜关键字段用 `Select-String -List`，不用 `read` 整文件
+- 小文件用 `Get-Content -TotalCount N`
+- Skill 文件：会话首次读后记摘要，后续触发用摘要判断（版本号变了才重读）
+
+### Git 操作精简
+- `git status --porcelain | Select-Object -First 20`（不用 `git status` 全量）
+- `git log --oneline -10`
+- `git diff --stat` 先看统计，再加 `-- <file>` 看具体
+
+### exec 标准模板
+| 操作 | 命令 |
+|------|------|
+| 搜代码 | `Select-String -Path "packages\*\*.ts" -Pattern "..." -List -ErrorAction SilentlyContinue` |
+| tsc 错误 | `tsc --noEmit 2>&1 \| Select-String "error TS" \| Select-Object -First 10` |
+| 服务日志 | `Get-Content log.txt -Tail 20` |
+| BDD 单feature | `npx jest --testPathPattern="feature-name" 2>&1 \| Select-String "✓\|✗\|PASS\|FAIL" \| Select-Object -First 15` |
+| 合并检查 | git status --porcelain + git diff --stat + 文件计数 写一个 exec |
 
 ### 验证脚本优化
-- 临时代码文件（测试协议用）允许写，但：
-  - 直接跑，不行就原地改，不删了重写
-  - 用 `exec(yieldMs)` + `process.poll(timeout)` 单次等结果，不重复跑
-  - 验证成功后直接提交，不删除
+- 临时代码文件允许写，但：直接跑，不行就原地改，不删了重写
+  - 用 `exec(yieldMs)` + `process.poll(timeout)` 单次等结果
+  - 验证成功后**清理临时文件**，不提交
 
 ### BDD / 测试优化
 - 每次至多跑 1 轮测试：`exec(yieldMs=15000)` → 没返回则 `process.poll(timeout=15000)`
-- 输出用 `2>&1 | Select-String "关键字段" -First 10` 截断
+- 输出用 `2>&1 | Select-String "✓|✗|PASS|FAIL|Error" | Select-Object -First 15` 截断
 - 不重复跑失败的测试（除非修复后有理由相信通过了）
+- 能用 `--testPathPattern` 定位单个 feature 就别全跑
 
 ### yield / 等待优化
 - yieldMs 设到刚好够的时长（多数命令 8-15s），不要设 30s+ 空等
-- 长进程（Playwright 窗口）跑在 background，不 poll 等
+- 长进程跑在 background，不 poll 等
 
 ### 通用
-- 不确定的内容先用 `Select-String -List` 搜出位置，再 `read(offset=N, limit=M)` 读
+- 不确定的内容先用 `Select-String -List` 搜出位置，再 `read(offset, limit)` 读
 - 不在 exec 里写即用即删的临时脚本
+- 多重检查（git状态+diff+文件计数）合并到1个 exec，用 `echo '---SECTION---'` 分隔
 
 ## compaction
 
-- reserveTokens=800000（20% 自动压缩）
+- reserveTokens=700000（DeepSeek v4 Pro 上下文 1M → 30% 即 300K 触发压缩，700K 缓冲）
 
 ## Skill 注册表
+
+> 摘要索引：`.skill-index.md`（SHA 匹配则用摘要，不重读 SKILL.md）
 
 | 触发词 | Skill | 文件 |
 |--------|-------|------|
@@ -176,6 +201,12 @@
 - Server 在 GameState 中广播 deltaTime（tick 间隔），客户端直接消费
 - 删除了 `MultiplayerLoop.ts` 中 `performance.now()` 本地 delta 计算 + `* 0.5` hack
 - 验证：双客户端 GameState 119 帧，deltaTime 均为 0.0333s ✅
+
+### QMD 重装关键教训（2026-06-17）
+- `memory.backend` 是**顶层**配置项（不在 `agents.defaults` 下）
+- `qmd.command` 路径必须用**正斜杠**（`C:/users/.../qmd.js`），反斜杠 + `.cmd` 文件不被识别
+- 同时设 `memorySearch.provider: "none"` 绕过 OpenAI key 要求（在 `agents.defaults` 下）
+- 最终 provider 显示为 `qmd`，backend 显示为 `qmd`，走 BM25 搜索模式
 
 ---
 
