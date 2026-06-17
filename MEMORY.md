@@ -140,7 +140,7 @@
 |--------|-------|------|
 | `feat:` / `fix:` / `refactor:` | gts-dev-workflow | `skills/gts-dev-workflow/SKILL.md` |
 | `代码审核` / `审核` | gts-code-review | `skills/gts-code-review/SKILL.md` |
-| `保存` | gts-save-flow | `skills/gts-save-flow/SKILL.md` |
+| `保存`（仅二字） | gts-save-flow | `skills/gts-save-flow/SKILL.md` |
 | `验收` | gts-acceptance | `skills/gts-acceptance/SKILL.md` |
 | `e2e测试` / `e2e` | gts-e2e-test | `skills/gts-e2e-test/SKILL.md` |
 | `e2e自动` / `自动e2e` | gts-e2e-auto | `skills/gts-e2e-auto/SKILL.md` |
