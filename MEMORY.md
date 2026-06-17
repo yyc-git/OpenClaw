@@ -34,20 +34,66 @@
   - `笔记/讨论记录/` — 日常调试过程
   - `笔记/代码笔记/` — 踩坑记录
 
-## 测试策略（必须遵守）
-
-每次改代码后：
-1. 先改代码
-2. **然后补上/更新测试用例，不能漏**
-3. 跑测试
-4. 报错 → 出方案 → 确认后修复
-5. 继续循环直到全过
-
 ## 开工规则
 - **出方案后必须等兄弟明确说「开工」或「开干」才能动手**
 - 「要记住」「好的」不等于同意开工
 
+## 提交规则
+- 兄弟说「提交git」= 只 `git commit`，不做 `git push`
+- 兄弟想要 push 时会明确说「推送」
+
+## 编程流程
+
+统一使用 **TDD + 契约检查 + 防御式编程**
+
+默认针对**多人联网**部分（room-service + logic/src + frontend/business_layer/multiplayer）
+所有改动点（含 frontend）都要覆盖
+
+### feat（实现功能）
+1. **出方案 → 飞书通知** → **等确认** → **然后对每个要修改的文件写对应测试**
+2. 先增加对应的测试 → 然后运行这些测试（**只跑新增的测试**）→ 应该按照预期而失败
+3. 实现功能 → 更新契约检查 → 更新防御式编程
+4. 运行测试 → 全通过（**跑全部 BDD 测试**）
+5. 重构（大改需再出方案确认）→ 运行测试 → 全通过（**跑全部 BDD 测试**）
+6. 看情况更新项目文档
+7. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
+8. **飞书通知总结（含代码要点，便于兄弟检查）**
+
+### fix（修复）
+1. **出方案 → 飞书通知** → **等确认** → **然后对每个要修改的文件写对应测试**
+2. 先增加对应的测试 → 然后运行这些测试（**只跑新增的测试**）→ 应该按照预期而失败
+3. 修复 → 更新契约检查 → 更新防御式编程
+4. 运行测试 → 全通过（**跑全部 BDD 测试**）
+5. 看情况更新项目文档
+6. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
+7. **飞书通知总结（含代码要点，便于兄弟检查）**
+
+### refactor（重构）
+1. 出方案 → 飞书通知 → 等确认
+2. 重构 → 更新契约检查 → 更新防御式编程
+3. 运行测试（**跑全部 BDD 测试**）
+4. 看情况更新项目文档
+5. **准备好手动测试环境**（webpack-dev-server / 服务端等按需启动）
+6. **飞书通知总结（含代码要点，便于兄弟检查）**
+
+### 其它
+- 大改：出方案 → 飞书通知 → 等确认 → 修改 → 通知总结
+- 小改：直接改 → 通知总结
+
+## 重要记忆
+
+### 状态同步原则
+- 最终状态（血量、位置、分数等）直接发送**绝对状态值**，不是变化量
+- 客户端自行对比缓存计算差值（浮点数误差/丢包免疫）
+
+### 测试基础设施
+- frontend 有 BDD 测试：`test/features/*.feature` + `test/step-definitions/*.steps.ts`
+- mock 配置：`jest.multiplayer.json`，mock THREE 在 `test/__mocks__/three-stub.js`
+- setup：`test/setup.ts`（含 mock performance/fillRect/clearRect）
+
 ## 保存协议
+
+> 注意：保存协议第7步「同步到 GitHub」包含 push，与上面的「提交git」规则不冲突
 
 每次兄弟说「保存」时，执行以下流程：
 1. **自动代码审核 + 重构** — 全自动，不打断
@@ -120,14 +166,52 @@
 - `| Select-String "pattern"` 过滤，不用 `| findstr` 再 `| wc -l`
 - `2>$null` 过滤 stderr（Node deprecation warnings 是 token 大户）
 - `du -sh` 代替 `ls -la`，`Measure-Object` 代替 `grep -c`
+- 独立的小命令合并到 1 个 exec（如同时 grep 多个文件，多个轻量检查写在一起）
+- 搜索路径加 `-ErrorAction SilentlyContinue`，范围限到 packages/ 内，避免扫 node_modules
 
 ### 读文件优化
-- 大文件用 `offset`/`limit` 采样，不整篇读
+- 大文件用 `offset`/`limit` 采样，不整篇读（>100 行必做）
 - 已在上下文里的文件不重复读
+- 搜关键字段用 `Select-String` 而非 `read`，避免读整文件
+- 已知路径的小文件（如 `.last-review`）用 `Get-Content -TotalCount N`
+
+### 验证脚本优化
+- 临时代码文件（测试协议用）允许写，但：
+  - 直接跑，不行就原地改，不删了重写
+  - 用 `exec(yieldMs)` + `process.poll(timeout)` 单次等结果，不重复跑
+  - 验证成功后直接提交，不删除
+
+### BDD / 测试优化
+- 每次至多跑 1 轮测试：`exec(yieldMs=15000)` → 没返回则 `process.poll(timeout=15000)`
+- 输出用 `2>&1 | Select-String "关键字段" -First 10` 截断
+- 不重复跑失败的测试（除非修复后有理由相信通过了）
+
+### yield / 等待优化
+- yieldMs 设到刚好够的时长（多数命令 8-15s），不要设 30s+ 空等
+- 长进程（Playwright 窗口）跑在 background，不 poll 等
+
+### 通用
+- 不确定的内容先用 `Select-String -List` 搜出位置，再 `read(offset=N, limit=M)` 读
+- 不在 exec 里写即用即删的临时脚本
 
 ## compaction
 
 - reserveTokens=800000（20% 自动压缩）
+
+## Skill 流程固化
+
+- **gts-dev-workflow** — `feat:` / `fix:` / `refactor:` 触发，TDD+契约+BDD+飞书硬性流程
+- **gts-code-review** — `代码审核` / `审核` 触发，全手动 4 步交互式审查
+- 两个 Skill 的完整内容见 `skills/gts-dev-workflow/SKILL.md` 和 `skills/gts-code-review/SKILL.md`
+- 保存协议不触发 gts-code-review
+
+## 代码审核协议
+
+> 已固化为 Skill（gts-code-review），以下为原始协议留存
+
+兄弟说「代码审核」时进入审核流程：
+1. 给出距离上次代码审核或者保存后的代码要点、改动要点
+2. 分析需要重构/修改的地方，出方案
 
 ## 关键决策（活跃条目）
 
@@ -152,6 +236,11 @@
 ### Torso 不包含手臂/臀部
 - GIANTESS_BONE_GROUPS Torso 只用 spatial（上半身2→下半身，radius: 0.95），删 boneNames 兜底
 - radius=0.95 < 肩半宽(左肩C/右肩C=1.094) → 排除手臂
+
+### 动画步进服务端驱动（2026-06-16）
+- Server 在 GameState 中广播 deltaTime（tick 间隔），客户端直接消费
+- 删除了 `MultiplayerLoop.ts` 中 `performance.now()` 本地 delta 计算 + `* 0.5` hack
+- 验证：双客户端 GameState 119 帧，deltaTime 均为 0.0333s ✅
 
 ---
 
