@@ -136,6 +136,7 @@
 | `启动服务` / `重启服务` | gts-service | `skills/gts-service/SKILL.md` |
 | `提交git` / `推送` | gts-git-commit | `skills/gts-git-commit/SKILL.md` |
 | （自动生效） | token-optimization | `skills/token-optimization/SKILL.md` |
+| `拉取` / `更新` / `同步` | gts-git-pull | `skills/gts-git-pull/SKILL.md` |
 
 ## 关键决策（活跃条目）
 
