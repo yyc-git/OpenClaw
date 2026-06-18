@@ -69,8 +69,9 @@
 
 ## 通知
 
-- 飞书通知目标（旧bot）：`user:ou_2412e799eac60d83f54ecb2601f0ba80`
-- 飞书通知目标（新bot）：`user:ou_eeb0faa83444e9b2d85a4ce4f8845a8d`
+- 飞书 bot 按主机名自动选择：
+  - `DESKTOP-HAOFHBA` → `user:ou_eeb0faa83444e9b2d85a4ce4f8845a8d`（新bot）
+  - 其他机器 → `user:ou_2412e799eac60d83f54ecb2601f0ba80`（旧bot）
 - 任务完成后必须飞书通知，等回复期间保持 NO_REPLY
 
 ### 项目文件结构

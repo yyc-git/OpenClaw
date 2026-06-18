@@ -58,7 +58,7 @@ API 耗时：
 
 飞书短通知（≤10 字）：
 ```
-openclaw message send --channel feishu --target "user:ou_2412e799eac60d83f54ecb2601f0ba80" --message "性能录制完成 ✅"
+openclaw message send --channel feishu --target "<FEISHU_TARGET>" --message "性能录制完成 ✅"
 ```
 
 ---
