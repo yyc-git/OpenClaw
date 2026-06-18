@@ -18,54 +18,57 @@ description: "兄弟说「保存」时触发。7+1步：审核检查→扫描改
 - 检查最近 1 小时内是否已进行代码审核：
   - 读 `memory/YYYY-MM-DD.md`，搜索「代码审核」条目
   - 搜索 `笔记/决策记录/` 中当天文件名包含「审核」的文档
-- **如有审核记录** → 跳过，直接进入 Step 1
-- **如无审核记录** → 提示兄弟：
-  > 「⚠️ 最近 1 小时未进行代码审核，建议先 run `代码审核`。1 分钟后自动继续保存...」
-  - 等 60 秒（不用 cron，用 sleep 60s）
-  - 期间兄弟回复 → 取消保存，触发代码审核
-  - 超时无回复 → 继续 Step 1
+- 如有审核记录 → 跳过手动审核，直接进入 Step 1
+- 如无审核记录 → 中止保存，提示兄弟「今日尚未代码审核，建议先审核」
+- ⚠️ 此检查不调用 `gts-code-review` Skill
 
 ### Step 1：确定改动范围
 
-- 读 `.last-save`（`笔记/决策记录/`），获取上次保存的 commit
-- `git diff <last-save>..HEAD` 出改动文件清单
-- 筛掉：`.gitignore` 中匹配的内容、`node_modules/`、`dist/`、`*.gen.tsx`
-- 后续 Step 2-4 **仅针对这批改动文件**，不扫全项目
+- 读 `.last-save` 获取上次保存的 commit hash
+- `git diff --stat <last_save_hash>..HEAD` 列出改动文件
 
 ### Step 2：更新 BDD 测试
 
-- 对改动文件中新增/修改的代码，补充/修改对应的 feature + step 文件
-- 修复旧测试中不匹配 API 的命令格式
+- 针对有业务逻辑修改的文件，检查是否需更新对应 BDD feature + steps
+- 更新后跑一轮确认，必须全绿
 
-### Step 3：更新契约检查
+### Step 3：契约检查
 
-- 检查改动文件中新增/修改的函数是否被 `requireCheck`/`ensureCheck` 覆盖
-- 删除的校验路径不补
+- 检查 `Contract.ensureCheck` / `Contract.requireCheck` 是否保留（无删、无弱化）
 
-### Step 4：更新防御式编程
+### Step 4：防御式编程
 
-- 检查改动文件中中间位置的非空/边界校验（不应该用 `requireCheck`）
-- 统一用 `if/else throw` 模式
+- 检查新增/修改的代码是否有合理的 null/edge-case 处理
 
-### Step 5：更新笔记文档 + 提交
+### Step 5：更新笔记
 
-按改动类型更新 `笔记/` 对应目录：
-- 新功能 → `笔记/项目文档/` + `笔记/方案/`
-- Bug 修复 → `笔记/决策记录/` + `笔记/代码笔记/`
-- 重构 → `笔记/方案/` + `笔记/代码笔记/`
-- 架构级 → `笔记/项目文档/` + `笔记/决策记录/`（新增 ADR）
+- 如有新决策 → 写 `笔记/决策记录/<日期>-<描述>.md`
+- 如有新人坑 → 更新 `笔记/代码笔记/` 相关文件
 
-**笔记写完后，立即更新 `.last-save = HEAD`（写入 `笔记/决策记录/.last-save`），然后一起 `git add -A` + `git commit`。** 确保 `.last-save` 随笔记改动一同提交。
+### Step 6：更新记忆
 
-### Step 6：保存今日记忆
-
-- 更新 `memory/YYYY-MM-DD.md`
-- 更新 `MEMORY.md`（如有新规则/决策）
+- 将关键决策、新规则更新到 `memory/YYYY-MM-DD.md`
 
 ### Step 7：同步到 GitHub
 
-- OpenClaw 工作区 → `git push origin master`
-- GTS-Play 项目 → `git push origin dev`
+**执行顺序（关键）：**
+1. `git add -A`
+2. `git rev-parse HEAD | Set-Content "笔记/决策记录/.last-save"` ← **必须在 commit 之前写**
+3. `git commit -m "..."`  ← .last-save 此时已在暂存区
+4. `git push origin dev`
+
+- OpenClaw 工作区同样提交 + push
+
+⚠️ 注意：`.last-save` 的 `Set-Content` 必须放在 `git commit` 之前（但可以在 `git add -A` 之后，因为 add -A 后再写文件需要重新 add）
+
+正确顺序：
+```
+git add -A
+git rev-parse HEAD | Set-Content ".last-save"   # 先写
+git add ".last-save"                              # 再 add
+git commit -m "..."                               # 然后 commit（包含 .last-save）
+git push
+```
 
 ---
 
@@ -76,3 +79,4 @@ description: "兄弟说「保存」时触发。7+1步：审核检查→扫描改
 3. 不在保存流程中混入新功能开发
 4. **不触发 `gts-code-review` Skill**
 5. 飞书通知在完成后发一次总结
+6. **Step 7 必须按正确顺序：先写 .last-save，再 commit，最后 push**
