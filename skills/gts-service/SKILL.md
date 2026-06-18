@@ -1,6 +1,6 @@
 ---
 name: "gts-service"
-description: "兄弟说「启动服务」「重启服务」「停止服务」时触发。按顺序管理 room/match/webpack 服务。"
+description: "兄弟说「启动服务」「重启服务」「停止服务」时触发。按顺序管理 room/match/webpack 服务。重启room后必须重启match。"
 ---
 
 # 服务管理 Skill
@@ -28,7 +28,7 @@ description: "兄弟说「启动服务」「重启服务」「停止服务」时
 
 - 先 kill 现有 room/match 进程（webpack 无需重启则保留）
 - 再走启动流程
-- **改 logic 后**：重启 room-service 即可
+- **改 logic 后重启 room-service 时，必须同时重启 match-service**（room 重启会断开 match 的 WS 连接）
 - **改 webpack 配置后**：重启 webpack-dev-server
 
 ### 停止服务
@@ -48,4 +48,5 @@ description: "兄弟说「启动服务」「重启服务」「停止服务」时
 3. webpack-dev-server 无配置改动时不重启
 4. 改 node_modules 必须先问兄弟
 5. **禁止重启 Gateway**：重启/停止服务时只操作 room-service、match-service、webpack-dev-server，不能杀 gateway 进程
-6. 停止服务时精确 kill 对应 PID，不用 `Get-Process node \| Stop-Process` 这种全杀命令
+6. 停止服务时精确 kill 对应 PID，不用 `Get-Process node | Stop-Process` 这种全杀命令
+7. **重启 room-service 后必须跟着重启 match-service**（room 重启会断开 match 的 WS 连接，match 不会自动重连）
