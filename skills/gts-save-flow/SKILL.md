@@ -1,6 +1,6 @@
 ---
 name: "gts-save-flow"
-description: "兄弟说「保存」时触发。7+1步：审核检查→扫描改动→BDD→契约→防御式→笔记→记忆→GitHub同步"
+description: "兄弟说「保存」时触发。7+1步：审核→扫描→BDD→契约→防御式→笔记→记忆→GitHub同步（两段提交保last-save）"
 ---
 
 # 保存协议（硬性操作规程）
@@ -15,68 +15,62 @@ description: "兄弟说「保存」时触发。7+1步：审核检查→扫描改
 
 ### Step 0：代码审核检查（前置）
 
-- 检查最近 1 小时内是否已进行代码审核：
-  - 读 `memory/YYYY-MM-DD.md`，搜索「代码审核」条目
-  - 搜索 `笔记/决策记录/` 中当天文件名包含「审核」的文档
-- 如有审核记录 → 跳过手动审核，直接进入 Step 1
-- 如无审核记录 → 中止保存，提示兄弟「今日尚未代码审核，建议先审核」
-- ⚠️ 此检查不调用 `gts-code-review` Skill
+- 检查最近 1 小时内是否已进行代码审核
+- 如有→跳过；如无→中止保存，提示兄弟
 
 ### Step 1：确定改动范围
 
 - 读 `.last-save` 获取上次保存的 commit hash
-- `git diff --stat <last_save_hash>..HEAD` 列出改动文件
+- `git diff --stat <hash>..HEAD` 列出改动文件
 
 ### Step 2：更新 BDD 测试
 
-- 针对有业务逻辑修改的文件，检查是否需更新对应 BDD feature + steps
-- 更新后跑一轮确认，必须全绿
+- 针对有业务逻辑修改的文件，检查是否需更新对应 BDD
+- 跑一轮确认全绿
 
 ### Step 3：契约检查
 
-- 检查 `Contract.ensureCheck` / `Contract.requireCheck` 是否保留（无删、无弱化）
+- 检查 `Contract.ensureCheck` / `Contract.requireCheck` 是否保留
 
 ### Step 4：防御式编程
 
-- 检查新增/修改的代码是否有合理的 null/edge-case 处理
+- 检查 null/edge-case 处理
 
 ### Step 5：更新笔记
 
-- 如有新决策 → 写 `笔记/决策记录/<日期>-<描述>.md`
-- 如有新人坑 → 更新 `笔记/代码笔记/` 相关文件
+- 新决策→写 `笔记/决策记录/<日期>-<描述>.md`
 
 ### Step 6：更新记忆
 
-- 将关键决策、新规则更新到 `memory/YYYY-MM-DD.md`
+- 更新 `memory/YYYY-MM-DD.md`
 
 ### Step 7：同步到 GitHub
 
-**执行顺序（关键）：**
-1. `git add -A`
-2. `git rev-parse HEAD | Set-Content "笔记/决策记录/.last-save"` ← **必须在 commit 之前写**
-3. `git commit -m "..."`  ← .last-save 此时已在暂存区
-4. `git push origin dev`
+**⚠️ 关键：两段提交，确保 .last-save 不丢失**
 
-- OpenClaw 工作区同样提交 + push
-
-⚠️ 注意：`.last-save` 的 `Set-Content` 必须放在 `git commit` 之前（但可以在 `git add -A` 之后，因为 add -A 后再写文件需要重新 add）
-
-正确顺序：
+GTS-Play 项目：
 ```
 git add -A
-git rev-parse HEAD | Set-Content ".last-save"   # 先写
-git add ".last-save"                              # 再 add
-git commit -m "..."                               # 然后 commit（包含 .last-save）
-git push
+git commit -m "<变更描述>"                        # ① 第一段：变更
+git rev-parse HEAD | Set-Content "笔记/决策记录/.last-save"  # ② 写新 SHA
+git add "笔记/决策记录/.last-save"                 # ③ 加暂存
+git commit -m "chore: update .last-save"          # ④ 第二段：last-save
+git push origin dev                                # ⑤ 推送（包含两个 commit）
+```
+
+OpenClaw 工作区：
+```
+cd C:\Users\one\.openclaw\workspace
+git add -A
+git commit -m "save: <日期> <简述>"
+git push origin master
 ```
 
 ---
 
 ## 执行纪律
 
-1. Step 0 审核检查 → Step 1-7 全自动不打断
-2. Step 2-4 只针对本次改动文件，不扫全项目
-3. 不在保存流程中混入新功能开发
-4. **不触发 `gts-code-review` Skill**
-5. 飞书通知在完成后发一次总结
-6. **Step 7 必须按正确顺序：先写 .last-save，再 commit，最后 push**
+1. Step 0→Step 1-7 全自动不打断
+2. Step 7 必须两段提交：先改代码，再单独提交 .last-save
+3. 绝不能用 `--amend`（会改写已推送历史）
+4. 飞书通知在完成后发一次总结
