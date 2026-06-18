@@ -23,6 +23,7 @@
 - **启动命令：用 `yarn dev`（`tsrpc-cli dev`），不是 `npx ts-node`**
 - **重启 room-service 后必须跟着重启 match-service**（room 重启断开 match 的 WS 连接）
 - 测试后 → 重启服务端清除脏数据
+- **E2E 测试前必须先重启 room-service + match-service**（避免 WS 失连卡在"查找房间中"）
 - **改 Skill 文件 → 必须走 `skill_workshop`，不能直接 `edit`/`write` SKILL.md**
 - **重构规则：尽量将模块状态移到 state 中统一管理**（而非模块级 `let` 变量）
 
