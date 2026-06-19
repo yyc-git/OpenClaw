@@ -8,6 +8,11 @@
 
 ## 工作协议
 
+### 📣 等待确认必发飞书通知
+
+> **最高优先级规则。** 任何 Skill 或流程中，只要涉及「停住等兄弟确认」，
+> 必须同时发飞书通知（含上下文和确认诉求）。禁止静默等待。
+
 - 都在当前会话中进行，不开子会话
 - 兄弟下指令 → **先回确认**再干活
 - 重启 Gateway → 先问兄弟确认（不在任何 Skill 中自动触发）
@@ -25,6 +30,12 @@
 - 测试后 → 重启服务端清除脏数据
 - **E2E 测试前必须先重启 room-service + match-service**（避免 WS 失连卡在"查找房间中"）
 - **改 Skill 文件 → 必须走 `skill_workshop`，不能直接 `edit`/`write` SKILL.md**
+
+## 保存信息
+
+- `last-save` 记录在 `笔记/决策记录/.last-save`（文本文件，存完整 commit SHA）
+- 不是 git tag，不是 git stash，是文件
+- 上次保存：5907345dd（2026-06-18 17:19）
 
 ## 项目：GTS-Play
 
@@ -159,6 +170,7 @@
 | `提交git` / `推送` | gts-git-commit | `skills/gts-git-commit/SKILL.md` |
 | （自动生效） | token-optimization | `skills/token-optimization/SKILL.md` |
 | `拉取` / `更新` / `同步` | gts-git-pull | `skills/gts-git-pull/SKILL.md` |
+| `回忆` / `回顾` / `recollect` | gts-recall | `skills/gts-recall/SKILL.md` |
 
 ## 代码审核重构规则（2026-06-19）
 
@@ -168,12 +180,6 @@
 > - **没写内容** = 该项直接要重构
 > - **写了内容** = 按写的内容修改
 > - 只有写「不处理」「跳过」「忽略」等明确词才不处理
-
-### 重构原则：state 入参化
-- 函数不应隐式调用 `readState()`/`writeState()`
-- 应通过参数传入 state（`s`）或 multiplayer（`mp`），使其尽量接近纯函数
-- 例外：顶层编排函数（initForMultiplayer / loopForMultiplayer 等入口）
-- 直接修改传入的 mp（调用方 writeState），或返回新 state
 
 ## 关键决策（活跃条目）
 
