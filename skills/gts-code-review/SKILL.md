@@ -54,6 +54,8 @@ description: "兄弟说「代码审核」时触发，全手动交互：扫描改
 | logic 层包含渲染代码 | `logic/` 或 `logic_layer/` 目录下出现 DOM/Canvas/THREE/CSS 等渲染 API，或 import `render_layer/` |
 | 客户端计算服务端职责 | `frontend/` 出现碰撞检测/伤害计算/规则判断等应属服务端的逻辑 |
 | 源文件不同步 | 改 `.gen.tsx` 未同步 `.res` / 改 `dist` 未同步 `src` |
+| **未使用项目自定义 Three.js class** | 直接 `new THREE.Sprite` / `new THREE.Raycaster` 等，应改用 `meta3d-jiehuo-abstract/src/three/` 中修改过的版本（如 Sprite 有 dispose 清理） |
+| **存在 setTimeout/异步过多** | `setTimeout` 在游戏逻辑中不可控，应替换为基于 deltaTime 或 requestAnimationFrame 的定时机制；尽量减少 Promise/async 调用栈深度 |
 | **状态同步违规** | 见下方子规则 |
 
 ##### 状态同步子规则
@@ -74,6 +76,7 @@ description: "兄弟说「代码审核」时触发，全手动交互：扫描改
 | 导出函数缺 JSDoc | 补占位注释 |
 | 空 catch 块静默吞错 | 记摘要 |
 | 未清理的 event listener/timer | 记摘要（内存泄漏风险） |
+| 异步调用无超时/错误处理 | fetch/API 调用没有 timeout 或 catch，记摘要 |
 
 输出格式：
 ```

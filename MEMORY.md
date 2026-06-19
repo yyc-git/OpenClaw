@@ -166,6 +166,17 @@
 | （自动生效） | token-optimization | `skills/token-optimization/SKILL.md` |
 | `拉取` / `更新` / `同步` | gts-git-pull | `skills/gts-git-pull/SKILL.md` |
 
+## 代码审核重构规则（2026-06-19）
+
+### 优先使用项目自定义 Three.js class
+- 代码审核时检查：是否直接 `new THREE.Sprite` / `new THREE.Raycaster` 等
+- 应改用 `meta3d-jiehuo-abstract/src/three/` 中修改过的版本（如 Sprite 有 dispose 清理）
+
+### 禁止 setTimeout，减少异步操作
+- `setTimeout` 在游戏逻辑中不可控，应替换为 deltaTime/rAF 机制
+- 尽量减少 Promise/async 调用栈深度
+- 异步调用必须有 timeout 和 catch
+
 ## 关键决策（活跃条目）
 
 ### 键盘监听 capture phase + 重构（2026-06-16）
