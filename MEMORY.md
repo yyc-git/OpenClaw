@@ -163,9 +163,10 @@
 
 ## 代码审核重构规则（2026-06-19）
 
-### 优先使用项目自定义 Three.js class
-- 代码审核时检查：是否直接 `new THREE.Sprite` / `new THREE.Raycaster` 等
-- 应改用 `meta3d-jiehuo-abstract/src/three/` 中修改过的版本（如 Sprite 有 dispose 清理）
+> ⚠️ 代码审核 Step 2 的输出中：
+> - **🚫 没写内容** = 该项直接要重构（不是跳过）
+> - **写了内容** = 按写的内容修改
+> - 只有写「不处理」「跳过」「忽略」等明确词才不处理
 
 ### 禁止 `window` 全局挂载
 - 不应通过 `window.__xxx` 暴露内部状态或函数
