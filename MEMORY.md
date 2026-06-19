@@ -60,6 +60,27 @@
 - **更安全**：`Get-Process | Where-Object { $_.ProcessName -eq 'chrome' -and $_.CommandLine -match 'playwright' } | Stop-Process`
 - 千万别用 `MainWindowTitle -match ""` 之类空匹配 — 会匹配所有进程
 
+### 场景重入必须 dispose 旧 renderer（2026-06-18）
+- 每次 `new ThreeRenderer()` 后旧实例被覆盖但不 dispose → scene（含 OBB/HUD/entity）残留
+- **修复**：`MR.init` 先 dispose 旧 renderer，再挂新
+- `ThreeRenderer.dispose()` 用项目标准 `deepDispose(scene, true)`（`meta3d-jiehuo-abstract/src/scene/utils/DisposeUtils`），递归清理所有 Three.js 几何体/材质/纹理/骨骼
+- 模块级缓存（`_localHullOBB`、`_remoteHullCache`）也要在 `initForMultiplayer` 中清空
+
+### sendExit 是 async，必须 await（2026-06-18）
+- `sendExit` 是 async API 调用，不能 fire-and-forget
+- `onConfirm` 中必须在 `disconnect` 之前 await 完成，否则 WS 在 API 飞行中断开 → `WS_NOT_OPEN`
+- 双重防御：`sendExit` 内检查 client null 和 `isConnected`
+
+### 状态标志必须在 disconnect 中重置（2026-06-18）
+- `gameOverShown`、`gameOverData` 在 disconnect 时重置，否则二次进游戏弹窗不触发
+- `setEnterGame` 实际没人调，不能依赖它
+
+### Token 浪费教训（2026-06-18）
+- 改代码前先 `Select-String` 确认调用链，避免修了没人用的函数
+- jest 必加 `--silent` 压掉 THREE 警告
+- E2E 停止按钮被点 = 用户主动停止，不分析不重试
+- 搜索合并：多模式用 `|` 一次搜完
+
 ## 重要记忆
 
 ### 状态同步原则
@@ -86,6 +107,13 @@
   - `DESKTOP-HAOFHBA` → `user:ou_eeb0faa83444e9b2d85a4ce4f8845a8d`（新bot）
   - 其他机器 → `user:ou_2412e799eac60d83f54ecb2601f0ba80`（旧bot）
 - 任务完成后必须飞书通知，等回复期间保持 NO_REPLY
+
+## 监控
+
+### Pro 会话监控（2026-06-18）
+- 每 30 分钟（cron job）检查 `sessions.json` 是否出现 `deepseek-v4-pro` 模型
+- 发现新 Pro 会话 → 通过飞书向 `user:ou_2412e799eac60d83f54ecb2601f0ba80` 发送警告
+- 检查脚本：`scripts/check-pro-sessions.ps1`
 
 ### 项目文件结构
 
