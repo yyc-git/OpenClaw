@@ -169,6 +169,12 @@
 > - **写了内容** = 按写的内容修改
 > - 只有写「不处理」「跳过」「忽略」等明确词才不处理
 
+### 重构原则：state 入参化
+- 函数不应隐式调用 `readState()`/`writeState()`
+- 应通过参数传入 state（`s`）或 multiplayer（`mp`），使其尽量接近纯函数
+- 例外：顶层编排函数（initForMultiplayer / loopForMultiplayer 等入口）
+- 直接修改传入的 mp（调用方 writeState），或返回新 state
+
 ## 关键决策（活跃条目）
 
 ### 键盘监听 capture phase + 重构（2026-06-16）
