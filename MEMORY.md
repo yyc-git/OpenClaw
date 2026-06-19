@@ -110,11 +110,6 @@
 
 ## 监控
 
-### Pro 会话监控（2026-06-18）
-- 每 30 分钟（cron job）检查 `sessions.json` 是否出现 `deepseek-v4-pro` 模型
-- 发现新 Pro 会话 → 通过飞书向 `user:ou_2412e799eac60d83f54ecb2601f0ba80` 发送警告
-- 检查脚本：`scripts/check-pro-sessions.ps1`
-
 ### 项目文件结构
 
 `笔记/` 目录：
@@ -171,6 +166,14 @@
 ### 优先使用项目自定义 Three.js class
 - 代码审核时检查：是否直接 `new THREE.Sprite` / `new THREE.Raycaster` 等
 - 应改用 `meta3d-jiehuo-abstract/src/three/` 中修改过的版本（如 Sprite 有 dispose 清理）
+
+### 禁止 `window` 全局挂载
+- 不应通过 `window.__xxx` 暴露内部状态或函数
+- 所有数据放入 state 统一管理（E2E 通过 state 或 MR 模块 API 读取）
+
+### 模块级变量放入 state
+- 模块级 `let` 变量在场景重入时必须手动清空，易遗漏
+- 应尽量将模块状态移到 `state` 中统一管理（防止残留 + 方便测试）
 
 ### 禁止 setTimeout，减少异步操作
 - `setTimeout` 在游戏逻辑中不可控，应替换为 deltaTime/rAF 机制
