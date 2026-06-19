@@ -63,6 +63,12 @@
 
 ## 重要教训
 
+### Plugin hook 注册问题（2026-06-19）
+- 当前 OpenClaw 2026.6.5 external plugin 的 `api.on(...)` 注册始终不生效（hookCount=0）
+- linked .ts 和 .js 均无法正确注册 typed hooks
+- `openclaw config set --json` 可能损坏配置文件——改为手动编辑 `openclaw.json`
+- 结论：external plugin hook 方案暂时放弃，靠 SKILL + MEMORY.md 规则约束
+
 ### 杀 Chrome 进程必须精确匹配（2026-06-18）
 - **禁止** `Get-Process chrome | Stop-Process` 无过滤 — 会杀掉兄弟的浏览器
 - **正确做法**：`Get-Process -Name chrome | Where-Object { $_.CommandLine -match 'playwright' } | Stop-Process -Force`
