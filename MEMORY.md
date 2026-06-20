@@ -53,7 +53,8 @@
 - 「要记住」「好的」不等于同意开工
 
 ## 提交规则
-- 兄弟说「提交git」= 只 `git commit`，不做 `git push`
+- 兄弟说「提交」= git commit + 记忆保存（走 gts-submit-save），不做 push
+- 兄弟说「提交git」= 只 `git commit`（走 gts-git-commit），不做 push
 - 兄弟想要 push 时会明确说「推送」
 
 ## 编程流程
@@ -185,6 +186,7 @@
 | `拉取` / `更新` / `同步` | gts-git-pull | `skills/gts-git-pull/SKILL.md` |
 | `回忆` / `回顾` / `recollect` | gts-recall | `skills/gts-recall/SKILL.md` |
 | `截图分析` | gts-screenshot-optimize | `skills/gts-screenshot-optimize/SKILL.md` |
+| `提交`（仅二字） | gts-submit-save | `skills/gts-submit-save/SKILL.md` |
 
 ## 代码审核重构规则（2026-06-19）
 

@@ -5,7 +5,8 @@ description: "兄弟说「提交git」「推送」时触发。git add -A + commi
 
 # Git 提交 Skill
 
-> 触发词：`提交git` / `提交` / `推送`。
+> 触发词：`提交git` / `推送`。
+> 注意：「提交」已由 gts-submit-save 处理，此处不再响应。
 > 与 gts-save-flow 独立，只做 Git 操作。
 
 ---
