@@ -107,6 +107,13 @@
 - frontend 有 BDD 测试：`test/features/*.feature` + `test/step-definitions/*.steps.ts`
 - mock 配置：`jest.multiplayer.json`，mock THREE 在 `test/__mocks__/three-stub.js`
 - setup：`test/setup.ts`（含 mock performance/fillRect/clearRect）
+- **WebGL E2E 调试体系**（2026-06-20）：四层架构
+  - L1: `window.__GL_STATS__` 每帧聚合（DC/tri/tex/programs）
+  - L2: `window.__SHADER_ERRORS__` GLSL 编译错误自动捕获
+  - L3: `scene.traverseVisible` 按 Mesh/Line/Sprite/SkinnedMesh 分桶
+  - L4: `window.__GL_TRACE__.captureMs(n)` 逐条 GL 命令追踪（嵌入 ThreeRenderer.init）
+  - E2E helpers: `test/e2e/e2e-helpers.cjs` 含 GPU 断言函数
+  - 详细: `笔记/决策记录/WebGLE2E调试体系-2026-06-20.md`
 
 ## 保存协议
 
@@ -177,6 +184,7 @@
 | （自动生效） | token-optimization | `skills/token-optimization/SKILL.md` |
 | `拉取` / `更新` / `同步` | gts-git-pull | `skills/gts-git-pull/SKILL.md` |
 | `回忆` / `回顾` / `recollect` | gts-recall | `skills/gts-recall/SKILL.md` |
+| `截图分析` | gts-screenshot-optimize | `skills/gts-screenshot-optimize/SKILL.md` |
 
 ## 代码审核重构规则（2026-06-19）
 
@@ -221,6 +229,51 @@
 - `qmd.command` 路径必须用**正斜杠**（`C:/users/.../qmd.js`），反斜杠 + `.cmd` 文件不被识别
 - 同时设 `memorySearch.provider: "none"` 绕过 OpenAI key 要求（在 `agents.defaults` 下）
 - 最终 provider 显示为 `qmd`，backend 显示为 `qmd`，走 BM25 搜索模式
+
+## WebGPU 与多线程分析（2026-06-20）
+
+### Three.js 0.184 WebGPU 状态
+- WebGPURenderer 已在核心 `src/renderers/webgpu/`，独立构建 `three/webgpu`
+- 标准材质自动映射（StandardNodeLibrary），内置 SkinningNode、ComputeNode、IndirectDraw
+- 自动回退 WebGL2（不支持的用户静默切换）
+- 成熟度 ~75%，对 GTS-Play 多人路径够用（不需要后处理/自定义 shader）
+- 移动端：Chrome Android 149+ ✅，Safari iOS 26.0+ ✅，QQ/UC/百度浏览器 ❌（走回退）
+
+### 迁移成本（多人路径）
+- ThreeRenderer 改动 ~15 行，其余文件 0 行（IRenderer 抽象保护）
+- 工期 2-3 天（升级 three + 双后端 + 验证）
+- ⚠️ 如果先加 WebGL 专用功能（EffectComposer/GLSL），将来重写成本 2-3 倍
+
+### GPU-Driven Pipeline
+- 积木齐全（ComputeNode/StorageBuffer/IndirectDraw/Atomic），管线需手写
+- GPU 碰撞检测 把握 75%（骨骼矩阵已在 GPU，逻辑简单）← 推荐第一优先级
+- GPU LOD 把握 85%（逻辑简单，多人场景收益大）
+- Instance Frustum Cull 把握 75%
+- Hi-Z 遮挡剔除 把握 55%（多 pass 调度不确定）
+- Meshlet Triangle Cull 把握 25%（研究级）
+
+### 多线程
+- Logic Worker (OBB/寻路) 把握 90%，现在就能做，不依赖 WebGPU
+- OffscreenCanvas + Data-Oriented SAB 架构可行（把握 70%），但工程量大（4-6周）
+- 核心原则：SAB 存纯数据，Worker 维护独立 Scene + 对象池，双缓冲 + AtomicNotify
+
+### 迁移铁律（现在就该做的）
+1. 动画用纯数据接口（已做到：`setMMDAnimation(id, name, duration)`）
+2. Entity 状态 TypedArray 化（方便将来映射 SAB）
+3. 新功能走 TSL，不走 GLSL（`material.onBeforeCompile`）
+4. 不走 WebGL 专用 API（`getContext()`/`getExtension()`/`WEBGL_*`）
+5. 不碰 WebGLRenderTarget，用通用 RenderTarget
+6. 渲染层不持有游戏状态（当前 MultiplayerRender 已做到）
+7. Game Logic 不直接碰 Three.js（通过 IRenderer）
+
+### 方案文档
+- 总体分析：`D:\Github\GTS-Play\笔记\方案\WebGPU与多线程迁移分析.md`
+- 具体改造方案（含代码）：`D:\Github\GTS-Play\笔记\方案\多人联网架构改造-WebGPU多线程就绪.md`
+  - EntityStore (TypedArray 数据层，SAB 就绪)
+  - IRenderer 扩展 (BackendCapabilities + Compute + syncFromEntityStore)
+  - 对象池渲染 + 后处理走 TSL
+  - GPU Compute 集成 + SAB 双缓冲 + Render Worker
+  - 8 项改造，4 个 Phase，向后兼容
 
 ---
 
