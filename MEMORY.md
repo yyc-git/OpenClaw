@@ -18,6 +18,7 @@
 - 重启 Gateway → 先问兄弟确认（不在任何 Skill 中自动触发）
 - 大改动/架构变化 → 先出方案等确认，确认后实现
 - 小改动 → 直接搞，事后给总结
+- 创建/apply Skill 必须先问兄弟确认再执行
 - 兄弟手动测试前 → 检查是否需要重启服务端清脏数据
 - **取消自动化测试（Playwright）**，只跑 BDD
 - 实现代码后直接告诉兄弟，不跑测试；兄弟喊测试时再跑
@@ -187,6 +188,7 @@
 | `回忆` / `回顾` / `recollect` | gts-recall | `skills/gts-recall/SKILL.md` |
 | `截图分析` | gts-screenshot-optimize | `skills/gts-screenshot-optimize/SKILL.md` |
 | `提交`（仅二字） | gts-submit-save | `skills/gts-submit-save/SKILL.md` |
+| （自动触发）`分析` | gts-analysis | `skills/gts-analysis/SKILL.md` |
 
 ## 代码审核重构规则（2026-06-19）
 
