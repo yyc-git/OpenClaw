@@ -253,7 +253,8 @@
 - Meshlet Triangle Cull 把握 25%（研究级）
 
 ### 多线程
-- Logic Worker (OBB/寻路) 把握 90%，现在就能做，不依赖 WebGPU
+- **动画分层**：MMD + FBX 小人动画 → CPU Worker 执行；海量敌人动画 → GPU-Driven Pipeline (GPU Skin)
+- Logic Worker (MMD动画 + OBB/寻路) 把握 90%，现在就能做，不依赖 WebGPU
 - OffscreenCanvas + Data-Oriented SAB 架构可行（把握 70%），但工程量大（4-6周）
 - 核心原则：SAB 存纯数据，Worker 维护独立 Scene + 对象池，双缓冲 + AtomicNotify
 
@@ -269,11 +270,14 @@
 ### 方案文档
 - 总体分析：`D:\Github\GTS-Play\笔记\方案\WebGPU与多线程迁移分析.md`
 - 具体改造方案（含代码）：`D:\Github\GTS-Play\笔记\方案\多人联网架构改造-WebGPU多线程就绪.md`
+  - **动画分层**：CPU Worker (MMD + FBX 少量角色动画+碰撞) + GPU Pipeline (海量敌人 GPU Skin)
   - EntityStore (TypedArray 数据层，SAB 就绪)
   - IRenderer 扩展 (BackendCapabilities + Compute + syncFromEntityStore)
   - 对象池渲染 + 后处理走 TSL
-  - GPU Compute 集成 + SAB 双缓冲 + Render Worker
-  - 8 项改造，4 个 Phase，向后兼容
+  - Logic Worker (MMD + FBX 动画 + OBB 碰撞) → SAB 输出
+  - GPU Swarm (Compute Skin + Frustum Cull + LOD + Indirect Draw)
+  - SAB 双缓冲 + Render Worker
+  - 8 项改造，5 个 Phase，向后兼容
 
 ---
 
